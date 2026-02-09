@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Manager</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2); 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3); 
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Modal Animation */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .modal-exit {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .modal-exit-active {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        /* Badge Styles */
+        .badge-fav {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+        .badge-nfav {
+            background: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        .badge-user {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .badge-sys {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        /* Base button reset & core styles */
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border: 1px solid transparent;
+    background: transparent;
+    color: #334155;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+/* Secondary button specific styling */
+.button-secondary {
+    border-color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 
+        0 1px 2px rgba(0, 0, 0, 0.03),
+        0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* Hover state - subtle lift & depth */
+.button-secondary:hover {
+    background: rgba(248, 250, 252, 0.92);
+    border-color: #cbd5e1;
+    color: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.06),
+        0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Active state - pressed effect */
+.button-secondary:active {
+    transform: translateY(1px);
+    box-shadow: 
+        0 1px 3px rgba(0, 0, 0, 0.08),
+        inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    background: rgba(241, 245, 249, 0.95);
+}
+
+/* Focus state - accessible outline */
+.button-secondary:focus-visible {
+    outline: none;
+    box-shadow: 
+        0 0 0 3px rgba(59, 130, 246, 0.25),
+        0 4px 8px rgba(0, 0, 0, 0.08);
+    border-color: #3b82f6;
+}
+
+/* Icon animation */
+.button-secondary svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    stroke-width: 1.75;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.button-secondary:hover svg {
+    transform: translateX(-2px);
+}
+
+/* Subtle background accent on hover */
+.button-secondary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 0%, rgba(59, 130, 246, 0.08) 30%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+    border-radius: inherit;
+}
+
+.button-secondary:hover::after {
+    opacity: 1;
+}
+
+/* Ensure text/icon stay above effects */
+.button-secondary span,
+.button-secondary svg {
+    position: relative;
+    z-index: 1;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .button {
+        transition: none;
+    }
+    .button-secondary svg {
+        transition: none;
+    }
+    .button-secondary::after {
+        transition: none;
+    }
+}
+
+/* Dark mode support (automatic) */
+@media (prefers-color-scheme: dark) {
+    .button-secondary {
+        background: rgba(30, 41, 59, 0.6);
+        border-color: #334155;
+        color: #cbd5e1;
+        box-shadow: 
+            0 1px 2px rgba(0, 0, 0, 0.2),
+            0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+    
+    .button-secondary:hover {
+        background: rgba(56, 70, 89, 0.8);
+        border-color: #475569;
+        color: #f1f5f9;
+        box-shadow: 
+            0 4px 8px rgba(0, 0, 0, 0.25),
+            0 1px 2px rgba(0, 0, 0, 0.15);
+    }
+    
+    .button-secondary:active {
+        background: rgba(30, 41, 59, 0.85);
+        box-shadow: 
+            0 1px 3px rgba(0, 0, 0, 0.3),
+            inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    .button-secondary:focus-visible {
+        box-shadow: 
+            0 0 0 3px rgba(96, 165, 250, 0.3),
+            0 4px 8px rgba(0, 0, 0, 0.25);
+        border-color: #60a5fa;
+    }
+    
+    .button-secondary::after {
+        background: linear-gradient(120deg, transparent 0%, rgba(96, 165, 250, 0.12) 30%, transparent 60%);
+    }
+}
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-72 glass flex flex-col border-r border-white/10 z-20 shadow-2xl">
+        <div class="p-6 border-b border-white/10">
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                <i class="fa-solid fa-layer-group mr-2 text-blue-400"></i>Prompts
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Manage your AI interactions</p>
+        </div>
+
+        <div class="p-6 flex-1 overflow-y-auto">
+            <!-- Filter 1: Tag -->
+            <div class="mb-8">
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                    Filter by Tag
+                </label>
+                <div class="relative">
+                    <select id="filterTag" class="w-full bg-slate-800/50 text-white border border-slate-600 rounded-lg px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer hover:bg-slate-800">
+                        <option value="all">All Tags</option>
+                        <option value="Favorite">Favorite</option>
+                        <option value="Not favorite">Not Favorite</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter 2: Category -->
+            <div class="mb-8">
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                    Filter by Category
+                </label>
+                <div class="relative">
+                    <select id="filterCategory" class="w-full bg-slate-800/50 text-white border border-slate-600 rounded-lg px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer hover:bg-slate-800">
+                        <option value="all">All Categories</option>
+                        <option value="User prompt">User Prompt</option>
+                        <option value="System prompt">System Prompt</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Widget -->
+            <div class="mt-auto bg-slate-800/30 rounded-xl p-4 border border-white/5">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-slate-400 text-sm">Total Items</span>
+                    <span id="totalCount" class="text-white font-bold">0</span>
+                </div>
+                <div class="w-full bg-slate-700/50 rounded-full h-1.5">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        <a href="index.html" class="button button-secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                <span>Back</span>
+        </a>
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col relative z-10">
+        <!-- Header -->
+        <header class="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-slate-900/20 backdrop-blur-sm">
+            <h2 class="text-xl font-semibold text-white">Library</h2>
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                    <input type="text" id="searchInput" placeholder="Search prompts..." class="bg-slate-800/50 border border-slate-700 text-sm rounded-full pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 text-slate-200 placeholder-slate-500">
+                </div>
+                <!-- "New" Button Removed as requested -->
+            </div>
+        </header>
+
+        <!-- List Container -->
+        <div class="flex-1 overflow-y-auto p-8" id="listContainer">
+            <!-- Items will be injected here via JS -->
+        </div>
+    </main>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <!-- Modal Content -->
+        <div id="modalContent" class="glass w-full max-w-2xl rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 m-4 flex flex-col max-h-[85vh]">
+            
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b border-white/10">
+                <div>
+                    <h3 id="modalTitle" class="text-2xl font-bold text-white mb-1">Prompt Title</h3>
+                    <div class="flex gap-2 text-xs" id="modalBadges">
+                        <!-- Badges injected here -->
+                    </div>
+                </div>
+                <button id="closeModalBtn" class="text-slate-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto">
+                <div class="bg-slate-900/50 rounded-xl p-5 border border-white/5 relative group">
+                    <p id="modalBody" class="text-slate-300 leading-relaxed whitespace-pre-wrap font-mono text-sm"></p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-white/10 flex justify-between items-center bg-slate-900/30 rounded-b-2xl">
+                <!-- Delete Button (Left Side) -->
+                <button id="deleteBtn" class="px-5 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
+                    <i class="fa-regular fa-trash-can"></i> Delete
+                </button>
+
+                <!-- Action Buttons (Right Side) -->
+                <div class="flex gap-3">
+                    <button id="closeModalBtnBottom" class="px-5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors font-medium text-sm">
+                        Close
+                    </button>
+                    <button id="copyBtn" class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
+                        <i class="fa-regular fa-copy"></i> Copy Text
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-8 right-8 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50">
+        <i class="fa-solid fa-check-circle"></i>
+        <span class="font-medium">Copied to clipboard!</span>
+    </div>
+
+    <script>
+       // Replace the entire <script> section in show_prompts.html with this:
+
+    const API_URL = "/api"; // Change for production
+
+    // State
+    let data = [];
+    let currentItemId = null;
+
+    // DOM Elements (keep existing ones)
+    const listContainer = document.getElementById('listContainer');
+    const filterTag = document.getElementById('filterTag');
+    const filterCategory = document.getElementById('filterCategory');
+    const searchInput = document.getElementById('searchInput');
+    const totalCount = document.getElementById('totalCount');
+
+    // Modal Elements (keep existing ones)
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalContent = document.getElementById('modalContent');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalBadges = document.getElementById('modalBadges');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const closeModalBtnBottom = document.getElementById('closeModalBtnBottom');
+    const copyBtn = document.getElementById('copyBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const toast = document.getElementById('toast');
+
+    // ============ API FUNCTIONS ============
+
+    async function fetchPrompts() {
+        const params = new URLSearchParams();
+        
+        const tagValue = filterTag.value;
+        const catValue = filterCategory.value;
+        const searchValue = searchInput.value;
+        
+        if (tagValue && tagValue !== 'all') params.append('tag', tagValue);
+        if (catValue && catValue !== 'all') params.append('category', catValue);
+        if (searchValue) params.append('search', searchValue);
+        
+        try {
+            const response = await fetch(`${API_URL}/prompts?${params}`);
+            data = await response.json();
+            renderList();
+        } catch (error) {
+            console.error('Error fetching prompts:', error);
+            showErrorToast('Failed to load prompts');
+        }
+    }
+
+    async function deletePromptAPI(id) {
+        try {
+            const response = await fetch(`${API_URL}/prompts/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                showToast('Prompt deleted successfully');
+                fetchPrompts(); // Refresh list
+            }
+        } catch (error) {
+            console.error('Error deleting prompt:', error);
+            showErrorToast('Failed to delete prompt');
+        }
+    }
+
+    // ============ UI FUNCTIONS ============
+
+    function truncateText(text, wordCount = 9) {
+        const words = text.split(' ');
+        if (words.length > wordCount) {
+            return words.slice(0, wordCount).join(' ') + '...';
+        }
+        return text;
+    }
+
+    function getBadgeClass(type, value) {
+        if (type === 'favorite') {
+            return value === 'Favorite' ? 'badge-fav' : 'badge-nfav';
+        }
+        if (type === 'type') {
+            return value === 'User prompt' ? 'badge-user' : 'badge-sys';
+        }
+        return '';
+    }
+
+    function renderList() {
+        totalCount.innerText = data.length;
+        listContainer.innerHTML = '';
+
+        if (data.length === 0) {
+            listContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-64 text-slate-500">
+                    <i class="fa-regular fa-folder-open text-4xl mb-4 opacity-50"></i>
+                    <p>No prompts found matching your criteria.</p>
+                </div>
+            `;
+            return;
+        }
+
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'glass-card rounded-xl p-5 mb-4 cursor-pointer group relative overflow-hidden';
+            card.onclick = () => openModal(item);
+
+            const iconClass = item.type === 'User prompt' ? 'fa-user text-blue-400' : 'fa-robot text-purple-400';
+
+            card.innerHTML = `
+                <div class="flex items-start justify-between">
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center border border-white/5 shadow-inner">
+                            <i class="fa-solid ${iconClass}"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors">${item.title}</h3>
+                            <p class="text-slate-400 text-sm mt-1 line-clamp-1">${truncateText(item.body)}</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <span class="text-xs px-2 py-1 rounded-full ${getBadgeClass('favorite', item.favorite)}">
+                            ${item.favorite === 'Favorite' ? '<i class="fa-solid fa-star mr-1"></i>' : ''}${item.favorite}
+                        </span>
+                        <span class="text-xs px-2 py-1 rounded-full ${getBadgeClass('type', item.type)}">
+                            ${item.type}
+                        </span>
+                    </div>
+                </div>
+                <div class="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 w-0 group-hover:w-full transition-all duration-500"></div>
+            `;
+            listContainer.appendChild(card);
+        });
+    }
+
+    function openModal(item) {
+        currentItemId = item.id;
+        modalTitle.innerText = item.title;
+        modalBody.innerText = item.body;
+        
+        modalBadges.innerHTML = `
+            <span class="px-2 py-0.5 rounded border ${getBadgeClass('favorite', item.favorite)}">
+                ${item.favorite}
+            </span>
+            <span class="px-2 py-0.5 rounded border ${getBadgeClass('type', item.type)}">
+                ${item.type}
+            </span>
+            <span class="text-slate-500 ml-2">
+                <i class="fa-regular fa-calendar mr-1"></i> ${item.date}
+            </span>
+        `;
+
+        modalOverlay.classList.remove('hidden');
+        setTimeout(() => {
+            modalOverlay.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeModal() {
+        modalOverlay.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modalOverlay.classList.add('hidden');
+            currentItemId = null;
+        }, 300);
+    }
+
+    function deleteItem() {
+        if (currentItemId !== null) {
+            deletePromptAPI(currentItemId);
+            closeModal();
+        }
+    }
+
+    function copyToClipboard() {
+        const text = modalBody.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Copied to clipboard!');
+        });
+    }
+
+    function showToast(message = 'Copied to clipboard!') {
+        const toastText = toast.querySelector('span');
+        toastText.textContent = message;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3000);
+    }
+
+    function showErrorToast(message) {
+        toast.classList.remove('bg-emerald-500');
+        toast.classList.add('bg-red-500');
+        showToast(message);
+        setTimeout(() => {
+            toast.classList.remove('bg-red-500');
+            toast.classList.add('bg-emerald-500');
+        }, 3000);
+    }
+
+    // ============ EVENT LISTENERS ============
+
+    filterTag.addEventListener('change', fetchPrompts);
+    filterCategory.addEventListener('change', fetchPrompts);
+    searchInput.addEventListener('input', debounce(fetchPrompts, 300));
+
+    closeModalBtn.addEventListener('click', closeModal);
+    closeModalBtnBottom.addEventListener('click', closeModal);
+    copyBtn.addEventListener('click', copyToClipboard);
+    deleteBtn.addEventListener('click', deleteItem);
+
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modalOverlay.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+
+    // Debounce helper for search
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Initial load
+    fetchPrompts();
+
+    </script>
+</body>
+</html>
