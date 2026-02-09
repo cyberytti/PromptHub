@@ -11,6 +11,5 @@ if __name__ == "__main__":
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
     
-    # Create pywebview window loading your app's URL
-    window = webview.create_window("My FastAPI Desktop App", "http://127.0.0.1:8000")
+    window = webview.create_window("PromptHub", "http://127.0.0.1:8000",text_select=True)
     webview.start()
