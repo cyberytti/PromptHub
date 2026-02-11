@@ -6,6 +6,15 @@ A minimal, fast, and focused desktop application for managing AI prompts. No clo
 
 ---
 
+
+## 📸 Preview
+
+![PromptHub Screenshot](IMG-20260211-WA0072.jpg)
+
+*The PromptHub landing page — clean, focused, and ready to capture your best AI prompts.*
+
+---
+
 ## 🤔 Why PromptHub Exists
 
 Every AI power user faces the same friction: great prompts get lost in notes apps 📝, chat histories 💬, or scattered documents 📄. PromptHub solves **one problem perfectly**—it gives you a dedicated, local space to store, categorize, and retrieve your best AI prompts 🤖💡
