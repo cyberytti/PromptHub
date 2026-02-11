@@ -96,7 +96,7 @@ The app window will open automatically 🎉 No browser required 🚫🌐
 pip install pyinstaller
 
 # 🔨 Create single executable
-pyinstaller --onefile --windowed \
+pyinstaller --windowed \    
   --exclude-module PyQt6 \
   --add-data "index.html:." \
   --add-data "show_prompts.html:." \
