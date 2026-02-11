@@ -101,7 +101,7 @@ pyinstaller --onefile --windowed \
   --add-data "index.html:." \
   --add-data "show_prompts.html:." \
   --add-data "write_prompt.html:." \
-  --icon "prompthub_logo.ico" \
+  --icon=prompthub_logo.ico \
   desktop_app.py
 
 ```
