@@ -97,10 +97,13 @@ pip install pyinstaller
 
 # 🔨 Create single executable
 pyinstaller --onefile --windowed \
-  --add-data "index.html;." \
-  --add-data "write_prompt.html;." \
-  --add-data "show_prompts.html;." \
+  --exclude-module PyQt6 \
+  --add-data "index.html:." \
+  --add-data "show_prompts.html:." \
+  --add-data "write_prompt.html:." \
+  --icon "prompthub_logo.ico" \
   desktop_app.py
+
 ```
 
 ---
