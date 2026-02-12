@@ -223,7 +223,7 @@
             0 1px 2px rgba(0, 0, 0, 0.2),
             0 2px 4px rgba(0, 0, 0, 0.15);
     }
-    
+
     .button-secondary:hover {
         background: rgba(56, 70, 89, 0.8);
         border-color: #475569;
@@ -232,26 +232,42 @@
             0 4px 8px rgba(0, 0, 0, 0.25),
             0 1px 2px rgba(0, 0, 0, 0.15);
     }
-    
+
     .button-secondary:active {
         background: rgba(30, 41, 59, 0.85);
         box-shadow: 
             0 1px 3px rgba(0, 0, 0, 0.3),
             inset 0 1px 2px rgba(0, 0, 0, 0.2);
     }
-    
+
     .button-secondary:focus-visible {
         box-shadow: 
             0 0 0 3px rgba(96, 165, 250, 0.3),
             0 4px 8px rgba(0, 0, 0, 0.25);
         border-color: #60a5fa;
     }
-    
+
     .button-secondary::after {
         background: linear-gradient(120deg, transparent 0%, rgba(96, 165, 250, 0.12) 30%, transparent 60%);
     }
 }
+
+        /* Edit textarea styling */
+        .edit-textarea {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            min-height: 200px;
+        }
+        .edit-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
     </style>
+<base target="_blank">
 </head>
 <body class="flex h-screen overflow-hidden">
 
@@ -298,7 +314,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Stats Widget -->
             <div class="mt-auto bg-slate-800/30 rounded-xl p-4 border border-white/5">
                 <div class="flex justify-between items-center mb-2">
@@ -340,11 +356,11 @@
         </div>
     </main>
 
-    <!-- Modal Overlay -->
+    <!-- View Modal Overlay -->
     <div id="modalOverlay" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0">
         <!-- Modal Content -->
         <div id="modalContent" class="glass w-full max-w-2xl rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 m-4 flex flex-col max-h-[85vh]">
-            
+
             <!-- Modal Header -->
             <div class="flex justify-between items-center p-6 border-b border-white/10">
                 <div>
@@ -358,15 +374,15 @@
                 </button>
             </div>
 
-            <!-- Modal Body -->
-            <div class="p-6 overflow-y-auto">
+            <!-- Modal Body (View Mode) -->
+            <div id="viewModeBody" class="p-6 overflow-y-auto">
                 <div class="bg-slate-900/50 rounded-xl p-5 border border-white/5 relative group">
                     <p id="modalBody" class="text-slate-300 leading-relaxed whitespace-pre-wrap font-mono text-sm"></p>
                 </div>
             </div>
 
-            <!-- Modal Footer -->
-            <div class="p-6 border-t border-white/10 flex justify-between items-center bg-slate-900/30 rounded-b-2xl">
+            <!-- Modal Footer (View Mode) -->
+            <div id="viewModeFooter" class="p-6 border-t border-white/10 flex justify-between items-center bg-slate-900/30 rounded-b-2xl">
                 <!-- Delete Button (Left Side) -->
                 <button id="deleteBtn" class="px-5 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
                     <i class="fa-regular fa-trash-can"></i> Delete
@@ -377,10 +393,46 @@
                     <button id="closeModalBtnBottom" class="px-5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors font-medium text-sm">
                         Close
                     </button>
+                    <button id="editBtn" class="px-5 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-600/20 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
+                        <i class="fa-regular fa-pen-to-square"></i> Edit
+                    </button>
                     <button id="copyBtn" class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
                         <i class="fa-regular fa-copy"></i> Copy Text
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal Overlay -->
+    <div id="editModalOverlay" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <!-- Edit Modal Content -->
+        <div id="editModalContent" class="glass w-full max-w-2xl rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 m-4 flex flex-col max-h-[85vh]">
+
+            <!-- Edit Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b border-white/10">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-1">Edit Prompt</h3>
+                    <p class="text-slate-400 text-sm">Modify the prompt body below</p>
+                </div>
+                <button id="closeEditModalBtn" class="text-slate-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Edit Modal Body -->
+            <div class="p-6 overflow-y-auto">
+                <textarea id="editTextarea" class="edit-textarea w-full rounded-xl p-4 text-sm leading-relaxed" placeholder="Enter your prompt here..."></textarea>
+            </div>
+
+            <!-- Edit Modal Footer -->
+            <div class="p-6 border-t border-white/10 flex justify-between items-center bg-slate-900/30 rounded-b-2xl">
+                <button id="cancelEditBtn" class="px-5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors font-medium text-sm">
+                    Cancel
+                </button>
+                <button id="updateBtn" class="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-check"></i> Update
+                </button>
             </div>
         </div>
     </div>
@@ -399,6 +451,7 @@
     // State
     let data = [];
     let currentItemId = null;
+    let currentItemBody = "";
 
     // DOM Elements (keep existing ones)
     const listContainer = document.getElementById('listContainer');
@@ -407,7 +460,7 @@
     const searchInput = document.getElementById('searchInput');
     const totalCount = document.getElementById('totalCount');
 
-    // Modal Elements (keep existing ones)
+    // View Modal Elements
     const modalOverlay = document.getElementById('modalOverlay');
     const modalContent = document.getElementById('modalContent');
     const modalTitle = document.getElementById('modalTitle');
@@ -417,21 +470,31 @@
     const closeModalBtnBottom = document.getElementById('closeModalBtnBottom');
     const copyBtn = document.getElementById('copyBtn');
     const deleteBtn = document.getElementById('deleteBtn');
+    const editBtn = document.getElementById('editBtn');
+
+    // Edit Modal Elements
+    const editModalOverlay = document.getElementById('editModalOverlay');
+    const editModalContent = document.getElementById('editModalContent');
+    const editTextarea = document.getElementById('editTextarea');
+    const closeEditModalBtn = document.getElementById('closeEditModalBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const updateBtn = document.getElementById('updateBtn');
+
     const toast = document.getElementById('toast');
 
     // ============ API FUNCTIONS ============
 
     async function fetchPrompts() {
         const params = new URLSearchParams();
-        
+
         const tagValue = filterTag.value;
         const catValue = filterCategory.value;
         const searchValue = searchInput.value;
-        
+
         if (tagValue && tagValue !== 'all') params.append('tag', tagValue);
         if (catValue && catValue !== 'all') params.append('category', catValue);
         if (searchValue) params.append('search', searchValue);
-        
+
         try {
             const response = await fetch(`${API_URL}/prompts?${params}`);
             data = await response.json();
@@ -447,7 +510,7 @@
             const response = await fetch(`${API_URL}/prompts/${id}`, {
                 method: 'DELETE'
             });
-            
+
             if (response.ok) {
                 showToast('Prompt deleted successfully');
                 fetchPrompts(); // Refresh list
@@ -455,6 +518,31 @@
         } catch (error) {
             console.error('Error deleting prompt:', error);
             showErrorToast('Failed to delete prompt');
+        }
+    }
+
+    async function updatePromptAPI(id, body) {
+        try {
+            const response = await fetch(`${API_URL}/prompts/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ body: body })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showToast('Update request sent successfully');
+                closeEditModal();
+                closeViewModal();
+                fetchPrompts(); // Refresh list
+            } else {
+                showErrorToast('Failed to update prompt');
+            }
+        } catch (error) {
+            console.error('Error updating prompt:', error);
+            showErrorToast('Failed to update prompt');
         }
     }
 
@@ -527,9 +615,10 @@
 
     function openModal(item) {
         currentItemId = item.id;
+        currentItemBody = item.body;
         modalTitle.innerText = item.title;
         modalBody.innerText = item.body;
-        
+
         modalBadges.innerHTML = `
             <span class="px-2 py-0.5 rounded border ${getBadgeClass('favorite', item.favorite)}">
                 ${item.favorite}
@@ -550,21 +639,43 @@
         }, 10);
     }
 
-    function closeModal() {
+    function closeViewModal() {
         modalOverlay.classList.add('opacity-0');
         modalContent.classList.remove('scale-100');
         modalContent.classList.add('scale-95');
-        
+
         setTimeout(() => {
             modalOverlay.classList.add('hidden');
             currentItemId = null;
+            currentItemBody = "";
+        }, 300);
+    }
+
+    function openEditModal() {
+        editTextarea.value = currentItemBody;
+        editModalOverlay.classList.remove('hidden');
+        setTimeout(() => {
+            editModalOverlay.classList.remove('opacity-0');
+            editModalContent.classList.remove('scale-95');
+            editModalContent.classList.add('scale-100');
+            editTextarea.focus();
+        }, 10);
+    }
+
+    function closeEditModal() {
+        editModalOverlay.classList.add('opacity-0');
+        editModalContent.classList.remove('scale-100');
+        editModalContent.classList.add('scale-95');
+
+        setTimeout(() => {
+            editModalOverlay.classList.add('hidden');
         }, 300);
     }
 
     function deleteItem() {
         if (currentItemId !== null) {
             deletePromptAPI(currentItemId);
-            closeModal();
+            closeViewModal();
         }
     }
 
@@ -573,6 +684,17 @@
         navigator.clipboard.writeText(text).then(() => {
             showToast('Copied to clipboard!');
         });
+    }
+
+    function handleUpdate() {
+        const updatedBody = editTextarea.value.trim();
+        if (updatedBody === '') {
+            showErrorToast('Prompt body cannot be empty');
+            return;
+        }
+        if (currentItemId !== null) {
+            updatePromptAPI(currentItemId, updatedBody);
+        }
     }
 
     function showToast(message = 'Copied to clipboard!') {
@@ -600,18 +722,32 @@
     filterCategory.addEventListener('change', fetchPrompts);
     searchInput.addEventListener('input', debounce(fetchPrompts, 300));
 
-    closeModalBtn.addEventListener('click', closeModal);
-    closeModalBtnBottom.addEventListener('click', closeModal);
+    closeModalBtn.addEventListener('click', closeViewModal);
+    closeModalBtnBottom.addEventListener('click', closeViewModal);
     copyBtn.addEventListener('click', copyToClipboard);
     deleteBtn.addEventListener('click', deleteItem);
+    editBtn.addEventListener('click', openEditModal);
+
+    // Edit modal event listeners
+    closeEditModalBtn.addEventListener('click', closeEditModal);
+    cancelEditBtn.addEventListener('click', closeEditModal);
+    updateBtn.addEventListener('click', handleUpdate);
 
     modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeModal();
+        if (e.target === modalOverlay) closeViewModal();
+    });
+
+    editModalOverlay.addEventListener('click', (e) => {
+        if (e.target === editModalOverlay) closeEditModal();
     });
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modalOverlay.classList.contains('hidden')) {
-            closeModal();
+        if (e.key === 'Escape') {
+            if (!editModalOverlay.classList.contains('hidden')) {
+                closeEditModal();
+            } else if (!modalOverlay.classList.contains('hidden')) {
+                closeViewModal();
+            }
         }
     });
 
