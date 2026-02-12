@@ -47,6 +47,10 @@ class Prompt(PromptCreate):
     id: int
     date: str
 
+# Pydantic model for update request
+class PromptUpdate(BaseModel):
+    body: str
+
 
 # ============ API ENDPOINTS ============
 
@@ -56,8 +60,8 @@ def get_prompts(
     category: Optional[str] = None,
     search: Optional[str] = None
 ):
-    
-    
+
+
     lis=cursor.execute("SELECT * FROM PromptHub").fetchall()
 
     result=[]
@@ -71,38 +75,38 @@ def get_prompts(
                 'favorite': d[4],
                 'type': d[5]
             })
-    
+
     if tag and tag != "all":
         result = [p for p in result if p["favorite"] == tag]
-    
+
     if category and category != "all":
         result = [p for p in result if p["type"] == category]
-    
+
     if search:
         search_lower = search.lower()
         result = [
             p for p in result 
             if search_lower in p["title"].lower() or search_lower in p["body"].lower()
         ]
-    
+
     return result
 
 @app.post("/api/prompts", response_model=Prompt)
 def create_prompt(prompt: PromptCreate):
     """Create a new prompt"""
     date_str = date.today().isoformat()
-   
-    
+
+
     cursor.execute("""
         INSERT INTO PromptHub (prompt_name, prompt_body, date, tag, category)
         VALUES (?, ?, ?, ?, ?)
     """, (prompt.title, prompt.body, date_str, prompt.favorite, prompt.type))
-    
+
     conn.commit()
-    
+
     # Get the last inserted ID
     new_id = cursor.lastrowid
-    
+
     # Create response with CORRECT field names matching the Prompt model
     new_prompt = {
         "id": new_id,
@@ -112,9 +116,9 @@ def create_prompt(prompt: PromptCreate):
         "type": prompt.type,        
         "date": date_str
     }
-    
-    
-    
+
+
+
     return new_prompt
 
 
@@ -124,6 +128,24 @@ def delete_prompt(prompt_id: int):
     cursor.execute("DELETE FROM PromptHub WHERE id = ?", (prompt_id,))
     conn.commit()
     return {"message": "Deleted successfully"}
+
+
+@app.put("/api/prompts/{prompt_id}")
+def update_prompt(prompt_id: int, prompt_update: PromptUpdate):
+    """Update a prompt body by ID - prints values to console"""
+    print(f"UPDATE REQUEST RECEIVED:")
+    print(f"  Prompt ID: {prompt_id}")
+    print(f"  New Body: {prompt_update.body}")
+
+    cursor.execute("UPDATE PromptHub SET prompt_body = ? WHERE id = ?",(prompt_update.body, prompt_id))
+    conn.commit()
+
+    return {
+        "message": "Update request received", 
+        "id": prompt_id, 
+        "body": prompt_update.body
+    }
+
 
 # ============ STATIC FILES & FRONTEND ROUTES ============
 
