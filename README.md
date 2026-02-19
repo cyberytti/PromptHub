@@ -104,8 +104,8 @@ To create a standalone `.exe` or executable file:
 pip install pyinstaller
 
 # Build the executable
-pyinstaller --windowed \
-  --noconsole \
+pyinstaller --windowed \    
+  --exclude-module PyQt6 \
   --add-data "index.html:." \
   --add-data "show_prompts.html:." \
   --add-data "write_prompt.html:." \
