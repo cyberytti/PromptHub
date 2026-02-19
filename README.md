@@ -70,7 +70,7 @@ Every AI power user faces the same friction: great prompts get lost in notes app
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/cyberytti/PromptHub.git](https://github.com/cyberytti/PromptHub.git)
+    git clone https://github.com/cyberytti/PromptHub.git
     cd PromptHub
     ```
 
