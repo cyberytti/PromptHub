@@ -3,34 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Write Prompt</title>
+    <title>Prompt Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --primary-light: #818cf8;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --light: #f9fafb;
-            --dark: #1e293b;
-            --gray: #64748b;
-            --gray-light: #94a3b8;
-            --white: #ffffff;
-            --border-radius-sm: 8px;
-            --border-radius: 12px;
-            --border-radius-lg: 16px;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --spacing-xs: 0.25rem;
-            --spacing-sm: 0.5rem;
-            --spacing-md: 1rem;
-            --spacing-lg: 1.5rem;
-            --spacing-xl: 2rem;
-            --spacing-2xl: 3rem;
+            --bg-app: #1e1e1e;
+            --bg-titlebar: #2b2b2b;
+            --bg-toolbar: #252526;
+            --bg-sidebar: #252526;
+            --bg-editor: #1e1e1e;
+            --bg-statusbar: #007acc;
+            --bg-panel: #252526;
+            --bg-input: #3c3c3c;
+            --bg-hover: #2a2d2e;
+            --bg-active: #094771;
+            --bg-modal: #252526;
+            --bg-modal-header: #2b2b2b;
+
+            --border: #333333;
+            --border-light: #3e3e42;
+            --border-focus: #007acc;
+
+            --text-primary: #cccccc;
+            --text-secondary: #8b8b8b;
+            --text-accent: #4ec9b0;
+            --text-muted: #6a6a6a;
+            --text-bright: #d4d4d4;
+            --text-white: #ffffff;
+
+            --accent: #007acc;
+            --accent-hover: #1a8ad4;
+            --accent-green: #4ec9b0;
+            --accent-yellow: #dcdcaa;
+            --accent-orange: #ce9178;
+            --accent-purple: #c586c0;
+            --danger: #f48771;
+
+            --font-ui: 'Geist', 'Segoe UI', system-ui, sans-serif;
+            --font-editor: 'IBM Plex Mono', 'Consolas', 'Menlo', monospace;
+
+            --titlebar-height: 38px;
+            --toolbar-height: 40px;
+            --statusbar-height: 22px;
+            --sidebar-width: 240px;
         }
 
         * {
@@ -39,262 +55,379 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: var(--spacing-xl);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Animated background particles */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
-            pointer-events: none;
-        }
-
-        /* Glassmorphism card container */
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-xl);
-            padding: var(--spacing-2xl);
-            position: relative;
-            z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideUp 0.6s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: var(--spacing-lg);
-            text-align: center;
-            letter-spacing: -0.02em;
-            position: relative;
-        }
-
-        h1::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            border-radius: 2px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-xl);
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        button, .button {
-            position: relative;
-            padding: var(--spacing-md) var(--spacing-xl);
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--spacing-sm);
-            overflow: hidden;
-            letter-spacing: 0.025em;
-        }
-
-        button::before, .button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+        html, body {
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
+            overflow: hidden;
+            background: var(--bg-app);
+            color: var(--text-primary);
+            font-family: var(--font-ui);
+            font-size: 13px;
+            -webkit-font-smoothing: antialiased;
         }
 
-        button:hover::before, .button:hover::before {
-            left: 100%;
-        }
-
-        #save_button {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: var(--white);
-            box-shadow: var(--shadow-md), 0 0 0 0 rgba(99, 102, 241, 0.4);
-        }
-
-        #save_button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg), 0 0 20px rgba(99, 102, 241, 0.4);
-        }
-
-        #save_button:active {
-            transform: translateY(0);
-        }
-
-        .button-secondary {
-            background: var(--white);
-            color: var(--gray);
-            border: 2px solid #e2e8f0;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .button-secondary:hover {
-            border-color: var(--primary-light);
-            color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            background: #f8fafc;
-        }
-
-        /* Textarea wrapper for better styling control */
-        .textarea-wrapper {
+        /* ── Window Chrome ───────────────────────── */
+        .titlebar {
+            height: var(--titlebar-height);
+            background: var(--bg-titlebar);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            -webkit-app-region: drag;
+            user-select: none;
             position: relative;
-            width: 100%;
+            flex-shrink: 0;
         }
 
-        textarea {
-            width: 100%;
-            min-height: 400px;
-            max-height: 600px;
-            padding: var(--spacing-lg);
-            font-size: 1rem;
-            line-height: 1.6;
-            color: var(--dark);
-            background: var(--white);
-            border: 2px solid #e2e8f0;
-            border-radius: var(--border-radius);
-            resize: vertical;
-            transition: var(--transition);
-            font-family: 'Inter', sans-serif;
-            box-shadow: inset var(--shadow-sm);
+        .traffic-lights {
+            display: flex;
+            gap: 7px;
+            -webkit-app-region: no-drag;
+            margin-right: 16px;
         }
 
-        textarea:hover {
-            border-color: #cbd5e1;
+        .tl {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: filter 0.15s;
+            position: relative;
         }
+        .tl:hover { filter: brightness(1.15); }
+        .tl-close  { background: #ff5f57; border: 0.5px solid rgba(0,0,0,0.18); }
+        .tl-min    { background: #febc2e; border: 0.5px solid rgba(0,0,0,0.12); }
+        .tl-max    { background: #28c840; border: 0.5px solid rgba(0,0,0,0.12); }
 
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), inset var(--shadow-sm);
-        }
-
-        textarea::placeholder {
-            color: var(--gray-light);
-            font-style: italic;
-        }
-
-        /* Character counter */
-        .char-counter {
+        .titlebar-title {
             position: absolute;
-            bottom: var(--spacing-md);
-            right: var(--spacing-md);
-            font-size: 0.875rem;
-            color: var(--gray-light);
-            background: rgba(255, 255, 255, 0.9);
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--border-radius-sm);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.01em;
             pointer-events: none;
         }
 
-        /* Toast notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--dark);
-            color: var(--white);
-            padding: var(--spacing-md) var(--spacing-xl);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-xl);
+        .titlebar-breadcrumb {
+            margin-left: auto;
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s ease;
-            z-index: 1000;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--text-muted);
+            -webkit-app-region: no-drag;
+        }
+
+        .breadcrumb-sep { opacity: 0.4; }
+
+        /* ── Toolbar ─────────────────────────────── */
+        .toolbar {
+            height: var(--toolbar-height);
+            background: var(--bg-toolbar);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .toolbar-btn {
+            height: 28px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 400;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.12s, color 0.12s;
+            white-space: nowrap;
+            -webkit-app-region: no-drag;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .toolbar-btn:active {
+            background: rgba(255,255,255,0.07);
+        }
+
+        .toolbar-btn svg {
+            flex-shrink: 0;
+            opacity: 0.75;
+        }
+
+        .toolbar-btn:hover svg { opacity: 1; }
+
+        .toolbar-btn.primary {
+            background: var(--accent);
+            color: #fff;
             font-weight: 500;
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
+        .toolbar-btn.primary:hover { background: var(--accent-hover); }
+        .toolbar-btn.primary svg { opacity: 1; }
+
+        .toolbar-sep {
+            width: 1px;
+            height: 20px;
+            background: var(--border-light);
+            margin: 0 4px;
         }
 
-        .toast-icon {
-            width: 20px;
-            height: 20px;
-            background: #10b981;
+        .toolbar-spacer { flex: 1; }
+
+        .toolbar-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .file-dot {
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
+            background: var(--accent-orange);
+        }
+
+        /* ── Main Layout ─────────────────────────── */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - var(--titlebar-height) - var(--toolbar-height) - var(--statusbar-height));
+            overflow: hidden;
+        }
+
+        /* ── Tab Bar ─────────────────────────────── */
+        .tabbar {
+            height: 35px;
+            background: var(--bg-titlebar);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-end;
+            padding: 0;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .tab {
+            height: 35px;
+            padding: 0 28px 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--bg-titlebar);
+            border-right: 1px solid var(--border);
+            cursor: default;
+            user-select: none;
+            position: relative;
+        }
+
+        .tab.active {
+            background: var(--bg-editor);
+            color: var(--text-bright);
+            border-bottom: 1px solid var(--bg-editor);
+            margin-bottom: -1px;
+        }
+
+        .tab-icon {
+            width: 14px;
+            height: 14px;
+            opacity: 0.7;
+        }
+
+        .tab-close {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            opacity: 0;
+            cursor: pointer;
+            transition: opacity 0.12s, background 0.12s;
         }
 
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
+        .tab:hover .tab-close, .tab.active .tab-close {
+            opacity: 0.6;
+        }
+
+        .tab-close:hover { background: rgba(255,255,255,0.1); opacity: 1 !important; }
+
+        /* ── Editor Area ─────────────────────────── */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .line-numbers {
+            width: 52px;
+            background: var(--bg-editor);
+            border-right: 1px solid var(--border);
+            padding: 16px 8px 16px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0;
+            overflow: hidden;
+            flex-shrink: 0;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .ln {
+            font-family: var(--font-editor);
+            font-size: 13px;
+            line-height: 21px;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .ln.active-line { opacity: 1; color: var(--text-secondary); }
+
+        .editor-scroll {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            background: var(--bg-editor);
+        }
+
+        .editor-scroll::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        .editor-scroll::-webkit-scrollbar-track { background: transparent; }
+        .editor-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.12);
+            border-radius: 5px;
+            border: 2px solid var(--bg-editor);
+        }
+        .editor-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        #message {
+            display: block;
+            width: 100%;
+            min-height: 100%;
+            padding: 16px 20px 80px 16px;
+            font-family: var(--font-editor);
+            font-size: 13.5px;
+            line-height: 21px;
+            color: var(--text-bright);
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            tab-size: 4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            caret-color: #aeafad;
+        }
+
+        #message::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        #message::selection {
+            background: rgba(0, 122, 204, 0.3);
+        }
+
+        /* Active line highlight */
+        .active-line-highlight {
+            position: absolute;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
+            height: 21px;
+            background: rgba(255,255,255,0.03);
+            pointer-events: none;
+            display: none;
+        }
+
+        /* Minimap */
+        .minimap {
+            width: 50px;
+            background: var(--bg-editor);
+            border-left: 1px solid var(--border);
+            overflow: hidden;
+            flex-shrink: 0;
+            opacity: 0.5;
+        }
+
+        .minimap-content {
+            padding: 16px 4px;
+        }
+
+        .minimap-line {
+            height: 2px;
+            margin-bottom: 1px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 1px;
+        }
+
+        .minimap-line.filled { background: rgba(255,255,255,0.18); }
+
+        /* ── Status Bar ──────────────────────────── */
+        .statusbar {
+            height: var(--statusbar-height);
+            background: var(--bg-statusbar);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 0;
+            flex-shrink: 0;
+        }
+
+        .status-item {
+            height: 100%;
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: background 0.12s;
+            white-space: nowrap;
+        }
+
+        .status-item:hover { background: rgba(255,255,255,0.12); }
+        .status-item svg { opacity: 0.85; }
+        .status-spacer { flex: 1; }
+
+        /* ── Modal / Dialog ──────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
+            z-index: 9000;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: opacity 0.15s;
         }
 
         .modal-overlay.active {
@@ -302,372 +435,575 @@
             visibility: visible;
         }
 
-        .modal {
-            background: var(--white);
-            border-radius: var(--border-radius-lg);
-            padding: var(--spacing-2xl);
-            width: 90%;
-            max-width: 500px;
-            box-shadow: var(--shadow-xl);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
+        .dialog {
+            width: 400px;
+            background: var(--bg-modal);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+            overflow: hidden;
+            transform: scale(0.97) translateY(-4px);
+            transition: transform 0.18s cubic-bezier(0.34,1.2,0.64,1);
         }
 
-        .modal-overlay.active .modal {
-            transform: scale(1);
+        .modal-overlay.active .dialog {
+            transform: scale(1) translateY(0);
         }
 
-        .modal-header {
-            margin-bottom: var(--spacing-xl);
+        .dialog-titlebar {
+            background: var(--bg-modal-header);
+            border-bottom: 1px solid var(--border);
+            padding: 11px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .modal-header h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: var(--spacing-sm);
-        }
+        .dialog-titlebar svg { color: var(--accent); flex-shrink: 0; }
 
-        .modal-header p {
-            color: var(--gray);
-            font-size: 0.875rem;
-        }
-
-        .form-group {
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.875rem;
+        .dialog-title {
+            font-size: 12px;
             font-weight: 600;
-            color: var(--dark);
-            margin-bottom: var(--spacing-sm);
+            color: var(--text-bright);
+            letter-spacing: 0.01em;
         }
 
-        .form-group input,
-        .form-group select {
+        .dialog-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .dialog-body {
+            padding: 18px 16px 16px;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field:last-of-type { margin-bottom: 0; }
+
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .field input,
+        .field select {
             width: 100%;
-            padding: var(--spacing-md);
-            font-size: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: var(--border-radius);
-            background: var(--white);
-            color: var(--dark);
-            transition: var(--transition);
-            font-family: 'Inter', sans-serif;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
+            height: 30px;
+            padding: 0 10px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            color: var(--text-bright);
+            font-family: var(--font-ui);
+            font-size: 12.5px;
+            transition: border-color 0.12s, box-shadow 0.12s;
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
 
-        .form-group select {
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+
+        .field input::placeholder { color: var(--text-muted); }
+
+        .field select {
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236a6a6a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 20px;
-            padding-right: 40px;
+            background-position: right 8px center;
+            background-size: 14px;
+            padding-right: 28px;
         }
 
-        .modal-buttons {
+        .field select option { background: var(--bg-input); }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .dialog-footer {
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.15);
+            border-top: 1px solid var(--border);
             display: flex;
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-xl);
+            gap: 8px;
+            justify-content: flex-end;
         }
 
-        .modal-buttons button {
-            flex: 1;
+        .btn {
+            height: 28px;
+            padding: 0 16px;
+            border: none;
+            border-radius: 4px;
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.12s, color 0.12s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .button-cancel {
-            background: #f1f5f9;
-            color: var(--gray);
-            border: 2px solid #e2e8f0;
+        .btn-ghost {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
         }
+        .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
 
-        .button-cancel:hover {
-            background: #e2e8f0;
-            color: var(--dark);
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
         }
+        .btn-primary:hover { background: var(--accent-hover); }
 
-        .button-confirm {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: var(--white);
-        }
-
-        .button-confirm:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .container {
-                padding: var(--spacing-lg);
-                margin: var(--spacing-sm);
-            }
-
-            h1 {
-                font-size: 1.75rem;
-            }
-
-            textarea {
-                min-height: 300px;
-            }
-
-            .button-group {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            button, .button {
-                width: 100%;
-            }
-
-            .modal {
-                padding: var(--spacing-lg);
-                margin: var(--spacing-md);
-            }
-
-            .modal-buttons {
-                flex-direction: column;
-            }
-        }
-
-        /* Loading animation for save button */
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
-            }
-        }
-
-        .saving {
-            animation: pulse 1.5s infinite;
+        /* ── Toast ───────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: calc(var(--statusbar-height) + 16px);
+            right: 20px;
+            background: #1f1f1f;
+            border: 1px solid var(--border-light);
+            border-left: 3px solid var(--accent-green);
+            color: var(--text-primary);
+            padding: 10px 16px;
+            border-radius: 4px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 400;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 8000;
             pointer-events: none;
         }
 
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            width: 16px;
+            height: 16px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 9px;
+            color: #000;
+            font-weight: 700;
+        }
+
+        /* ── Saving state ────────────────────────── */
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+        .spin { animation: spin 0.8s linear infinite; }
 
-        .spin {
-            animation: spin 1s linear infinite;
-        }
+        /* ── Scrollbar in editor ─────────────────── */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Write Prompt</h1>
-        <div class="button-group">
-            <button type="button" id="save_button">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Title Bar -->
+    <div class="titlebar">
+        <div class="traffic-lights">
+            <div class="tl tl-close"></div>
+            <div class="tl tl-min"></div>
+            <div class="tl tl-max"></div>
+        </div>
+        <div class="titlebar-title">Prompt Editor — untitled.prompt</div>
+        <div class="titlebar-breadcrumb">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            Prompts
+            <span class="breadcrumb-sep">›</span>
+            untitled.prompt
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <a href="index.html" class="toolbar-btn" style="text-decoration:none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back
+        </a>
+        <div class="toolbar-sep"></div>
+        <button class="toolbar-btn" title="Undo (⌘Z)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 .49-3.51"></path>
+            </svg>
+        </button>
+        <button class="toolbar-btn" title="Redo (⌘⇧Z)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-.49-3.51"></path>
+            </svg>
+        </button>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-label">
+            <div class="file-dot" id="modifiedDot" style="display:none;"></div>
+            <span id="fileLabel" style="color:var(--text-muted);">No changes</span>
+        </div>
+        <div class="toolbar-spacer"></div>
+        <button class="toolbar-btn" id="save_button" style="background:var(--accent);color:#fff;font-weight:500;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            Save Prompt
+            <kbd style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:3px;font-size:10px;font-family:var(--font-editor);">⌘S</kbd>
+        </button>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace">
+        <!-- Tab Bar -->
+        <div class="tabbar">
+            <div class="tab active">
+                <svg class="tab-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="12" height="12" rx="2" stroke="#4ec9b0" stroke-width="1.2"/>
+                    <path d="M5 6h6M5 9h4" stroke="#4ec9b0" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                untitled.prompt
+                <span class="tab-close">
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </span>
+            </div>
+        </div>
+
+        <!-- Editor -->
+        <div class="editor-container">
+            <div class="line-numbers" id="lineNumbers">
+                <div class="ln active-line">1</div>
+            </div>
+            <div class="editor-scroll">
+                <textarea
+                    id="message"
+                    name="message"
+                    placeholder="// Start writing your prompt here...
+//
+// Use Cmd+S to save, or click 'Save Prompt' in the toolbar."
+                    aria-label="Prompt editor"
+                    spellcheck="false"
+                    autocorrect="off"
+                    autocapitalize="off"
+                ></textarea>
+            </div>
+            <div class="minimap" id="minimap">
+                <div class="minimap-content" id="minimapContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="statusbar">
+        <div class="status-item">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Ready
+        </div>
+        <div class="status-item" id="positionStatus">Ln 1, Col 1</div>
+        <div class="status-spacer"></div>
+        <div class="status-item" id="charStatus">0 chars</div>
+        <div class="status-item" id="wordStatus">0 words</div>
+        <div class="status-item">Plain Text</div>
+        <div class="status-item">UTF-8</div>
+        <div class="status-item">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Prompt Editor v1.0
+        </div>
+    </div>
+
+    <!-- Save Dialog -->
+    <div class="modal-overlay" id="saveModal">
+        <div class="dialog">
+            <div class="dialog-titlebar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                     <polyline points="17 21 17 13 7 13 7 21"></polyline>
                     <polyline points="7 3 7 8 15 8"></polyline>
                 </svg>
-                <span>Save</span>
-            </button>
-            <a href="index.html" class="button button-secondary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-                <span>Back</span>
-            </a>
-        </div>
-        <div class="textarea-wrapper">
-            <textarea 
-                id="message" 
-                name="message" 
-                rows="20" 
-                placeholder="Enter your prompt here..."
-                aria-label="Message input field"
-                required
-            ></textarea>
-            <span class="char-counter" id="charCounter">0 characters</span>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal-overlay" id="saveModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>Save Prompt</h2>
-                <p>Enter details for your prompt</p>
+                <span class="dialog-title">Save Prompt</span>
+                <span class="dialog-subtitle">untitled.prompt</span>
             </div>
             <form id="saveForm">
-                <div class="form-group">
-                    <label for="promptName">Prompt Name</label>
-                    <input 
-                        type="text" 
-                        id="promptName" 
-                        name="promptName" 
-                        placeholder="Enter prompt name..."
-                        required
-                    >
+                <div class="dialog-body">
+                    <div class="field">
+                        <label class="field-label" for="promptName">Prompt Name</label>
+                        <input type="text" id="promptName" name="promptName" placeholder="e.g. Customer Support Assistant" required>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label class="field-label" for="promptTag">Tag</label>
+                            <select id="promptTag" name="promptTag" required>
+                                <option value="favorite">⭐ Favorite</option>
+                                <option value="not-favorite">· Not Favorite</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label class="field-label" for="promptCategory">Category</label>
+                            <select id="promptCategory" name="promptCategory" required>
+                                <option value="system">System Prompt</option>
+                                <option value="user">User Prompt</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="promptTag">Tag</label>
-                    <select id="promptTag" name="promptTag" required>
-                        <option value="favorite">Favorite</option>
-                        <option value="not-favorite">Not Favorite</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="promptCategory">Category</label>
-                    <select id="promptCategory" name="promptCategory" required>
-                        <option value="system">System Prompt</option>
-                        <option value="user">User Prompt</option>
-                    </select>
-                </div>
-                <div class="modal-buttons">
-                    <button type="button" class="button-cancel" id="cancelButton">Cancel</button>
-                    <button type="submit" class="button-confirm">Confirm Save</button>
+                <div class="dialog-footer">
+                    <button type="button" class="btn btn-ghost" id="cancelButton">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Save
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast Notification -->
+    <!-- Toast -->
     <div class="toast" id="toast">
         <div class="toast-icon">✓</div>
-        <span>Content saved successfully!</span>
+        <span>Prompt saved successfully!</span>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const API_URL = "/api"; // Change for production
-            
-            const saveButton = document.getElementById('save_button');
-            const textarea = document.getElementById('message');
-            const toast = document.getElementById('toast');
-            const charCounter = document.getElementById('charCounter');
-            const saveModal = document.getElementById('saveModal');
-            const saveForm = document.getElementById('saveForm');
-            const cancelButton = document.getElementById('cancelButton');
-            const promptNameInput = document.getElementById('promptName');
-            const promptTagSelect = document.getElementById('promptTag');
-            const promptCategorySelect = document.getElementById('promptCategory');
+    document.addEventListener('DOMContentLoaded', function () {
+        const API_URL = "/api";
 
-            // Character counter
-            textarea.addEventListener('input', function() {
-                const count = this.value.length;
-                charCounter.textContent = `${count} character${count !== 1 ? 's' : ''}`;
-                
-                // Visual feedback when typing
-                if (count > 0) {
-                    charCounter.style.color = 'var(--primary)';
-                } else {
-                    charCounter.style.color = 'var(--gray-light)';
-                }
+        const textarea = document.getElementById('message');
+        const saveButton = document.getElementById('save_button');
+        const saveModal = document.getElementById('saveModal');
+        const saveForm = document.getElementById('saveForm');
+        const cancelButton = document.getElementById('cancelButton');
+        const promptNameInput = document.getElementById('promptName');
+        const promptTagSelect = document.getElementById('promptTag');
+        const promptCategorySelect = document.getElementById('promptCategory');
+        const toast = document.getElementById('toast');
+        const charStatus = document.getElementById('charStatus');
+        const wordStatus = document.getElementById('wordStatus');
+        const positionStatus = document.getElementById('positionStatus');
+        const lineNumbers = document.getElementById('lineNumbers');
+        const modifiedDot = document.getElementById('modifiedDot');
+        const fileLabel = document.getElementById('fileLabel');
+        const minimapContent = document.getElementById('minimapContent');
+
+        // ── Line Numbers ───────────────────────────────────
+        function updateLineNumbers() {
+            const lines = textarea.value.split('\n');
+            const count = lines.length;
+            let html = '';
+            for (let i = 1; i <= Math.max(count, 1); i++) {
+                html += `<div class="ln">${i}</div>`;
+            }
+            lineNumbers.innerHTML = html;
+        }
+
+        // ── Minimap ────────────────────────────────────────
+        function updateMinimap() {
+            const lines = textarea.value.split('\n');
+            let html = '';
+            lines.forEach(line => {
+                const filled = line.trim().length > 0;
+                const w = Math.min(100, Math.max(20, line.length * 3));
+                html += `<div class="minimap-line${filled ? ' filled' : ''}" style="width:${w}%"></div>`;
             });
+            minimapContent.innerHTML = html;
+        }
 
-            // Open modal when save button is clicked
-            saveButton.addEventListener('click', function() {
-                const content = textarea.value.trim();
-                
-                if (!content) {
-                    alert('Please enter some content before saving.');
-                    return;
-                }
-                
-                saveModal.classList.add('active');
-                promptNameInput.focus();
-            });
+        // ── Stats ──────────────────────────────────────────
+        function updateStats() {
+            const val = textarea.value;
+            const chars = val.length;
+            const words = val.trim() === '' ? 0 : val.trim().split(/\s+/).length;
+            charStatus.textContent = chars.toLocaleString() + ' chars';
+            wordStatus.textContent = words.toLocaleString() + ' words';
 
-            // Close modal when cancel is clicked
-            cancelButton.addEventListener('click', function() {
-                saveModal.classList.remove('active');
-                saveForm.reset();
-            });
+            // Modified state
+            if (chars > 0) {
+                modifiedDot.style.display = 'block';
+                fileLabel.textContent = 'Unsaved changes';
+                fileLabel.style.color = 'var(--accent-orange)';
+            } else {
+                modifiedDot.style.display = 'none';
+                fileLabel.textContent = 'No changes';
+                fileLabel.style.color = 'var(--text-muted)';
+            }
+        }
 
-            // Close modal when clicking outside
-            saveModal.addEventListener('click', function(e) {
-                if (e.target === saveModal) {
-                    saveModal.classList.remove('active');
-                    saveForm.reset();
-                }
-            });
+        // ── Cursor Position ────────────────────────────────
+        function updatePosition() {
+            const text = textarea.value;
+            const pos = textarea.selectionStart;
+            const before = text.substring(0, pos);
+            const lines = before.split('\n');
+            const ln = lines.length;
+            const col = lines[lines.length - 1].length + 1;
+            positionStatus.textContent = `Ln ${ln}, Col ${col}`;
+        }
 
-            // Handle form submission - CONNECTED TO FASTAPI
-            saveForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const promptData = {
-                    title: promptNameInput.value.trim(),
-                    body: textarea.value.trim(),
-                    favorite: promptTagSelect.value === 'favorite' ? 'Favorite' : 'Not favorite',
-                    type: promptCategorySelect.value === 'system' ? 'System prompt' : 'User prompt'
-                };
-
-                // Show loading state on original save button
-                saveButton.classList.add('saving');
-                const originalContent = saveButton.innerHTML;
-                saveButton.innerHTML = `
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin">
-                        <circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="20"></circle>
-                    </svg>
-                    <span>Saving...</span>
-                `;
-
-                try {
-                    const response = await fetch(`${API_URL}/prompts`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(promptData)
-                    });
-
-                    if (response.ok) {
-                        // Close modal
-                        saveModal.classList.remove('active');
-                        
-                        // Clear textarea and form
-                        textarea.value = '';
-                        saveForm.reset();
-                        charCounter.textContent = '0 characters';
-                        charCounter.style.color = 'var(--gray-light)';
-                        
-                        // Show toast
-                        toast.querySelector('span').textContent = 'Prompt saved successfully!';
-                        toast.classList.add('show');
-                        
-                        // Hide toast after 3 seconds
-                        setTimeout(() => {
-                            toast.classList.remove('show');
-                        }, 3000);
-                    } else {
-                        throw new Error('Failed to save');
-                    }
-                } catch (error) {
-                    console.error('Error saving prompt:', error);
-                    alert('Failed to save prompt. Please try again.');
-                } finally {
-                    // Reset button
-                    saveButton.classList.remove('saving');
-                    saveButton.innerHTML = originalContent;
-                }
-            });
-
-            // Add subtle parallax effect on mouse move
-            document.addEventListener('mousemove', (e) => {
-                const x = (window.innerWidth - e.pageX * 2) / 100;
-                const y = (window.innerHeight - e.pageY * 2) / 100;
-                
-                document.querySelector('.container').style.transform = `translate(${x}px, ${y}px)`;
-            });
+        // ── Listeners ─────────────────────────────────────
+        textarea.addEventListener('input', () => {
+            updateLineNumbers();
+            updateStats();
+            updateMinimap();
         });
+
+        textarea.addEventListener('keyup', updatePosition);
+        textarea.addEventListener('click', updatePosition);
+        textarea.addEventListener('mouseup', updatePosition);
+
+        // Tab key support
+        textarea.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+                updateLineNumbers();
+                updateStats();
+                updateMinimap();
+            }
+            // Cmd+S
+            if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                e.preventDefault();
+                openModal();
+            }
+        });
+
+        // ── Modal ──────────────────────────────────────────
+        function openModal() {
+            const content = textarea.value.trim();
+            if (!content) {
+                shakeButton();
+                return;
+            }
+            saveModal.classList.add('active');
+            setTimeout(() => promptNameInput.focus(), 100);
+        }
+
+        function closeModal() {
+            saveModal.classList.remove('active');
+            saveForm.reset();
+        }
+
+        saveButton.addEventListener('click', openModal);
+        cancelButton.addEventListener('click', closeModal);
+        saveModal.addEventListener('click', (e) => { if (e.target === saveModal) closeModal(); });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ── Shake animation ────────────────────────────────
+        function shakeButton() {
+            saveButton.style.animation = 'none';
+            saveButton.style.transform = 'translateX(-3px)';
+            setTimeout(() => { saveButton.style.transform = 'translateX(3px)'; }, 60);
+            setTimeout(() => { saveButton.style.transform = 'translateX(-2px)'; }, 120);
+            setTimeout(() => { saveButton.style.transform = 'translateX(0)'; }, 180);
+        }
+
+        // ── Form Submit ────────────────────────────────────
+        saveForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const promptData = {
+                title: promptNameInput.value.trim(),
+                body: textarea.value.trim(),
+                favorite: promptTagSelect.value === 'favorite' ? 'Favorite' : 'Not favorite',
+                type: promptCategorySelect.value === 'system' ? 'System prompt' : 'User prompt'
+            };
+
+            const originalHTML = saveButton.innerHTML;
+            saveButton.innerHTML = `
+                <svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4" stroke-dashoffset="10"/></svg>
+                Saving...
+            `;
+            saveButton.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/prompts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(promptData)
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    textarea.value = '';
+                    saveForm.reset();
+                    updateLineNumbers();
+                    updateStats();
+                    updateMinimap();
+
+                    // Show toast
+                    toast.querySelector('span').textContent = `"${promptData.title}" saved successfully!`;
+                    toast.classList.add('show');
+                    setTimeout(() => toast.classList.remove('show'), 3200);
+
+                    // Update file label
+                    fileLabel.textContent = 'Saved';
+                    fileLabel.style.color = 'var(--accent-green)';
+                    modifiedDot.style.display = 'none';
+                    setTimeout(() => {
+                        fileLabel.textContent = 'No changes';
+                        fileLabel.style.color = 'var(--text-muted)';
+                    }, 3000);
+                } else {
+                    throw new Error('Failed to save');
+                }
+            } catch (error) {
+                console.error('Error saving prompt:', error);
+                alert('Failed to save prompt. Please try again.');
+            } finally {
+                saveButton.innerHTML = originalHTML;
+                saveButton.disabled = false;
+            }
+        });
+
+        // Init
+        updateLineNumbers();
+        updateStats();
+        updateMinimap();
+    });
     </script>
 </body>
 </html>
