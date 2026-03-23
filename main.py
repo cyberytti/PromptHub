@@ -2,17 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date
 import sqlite3
 import os
+from backend.schema_models.schema_models import Prompt,PromptCreate,PromptUpdate
+
 
 app = FastAPI(title="PromptHub API")
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'prompthub.db')
+DB_PATH = os.path.join(BASE_DIR, 'backend/database/prompthub.db')
 
 conn = sqlite3.connect(DB_PATH, check_same_thread=False)
 cursor = conn.cursor()
@@ -36,20 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Pydantic models for request/response
-class PromptCreate(BaseModel):
-    title: str
-    body: str
-    favorite: str  
-    type: str     
 
-class Prompt(PromptCreate):
-    id: int
-    date: str
-
-# Pydantic model for update request
-class PromptUpdate(BaseModel):
-    body: str
 
 
 # ============ API ENDPOINTS ============
@@ -156,25 +144,25 @@ def get_file_path(filename):
 @app.get("/")
 async def serve_index():
     """Serve the main HTML page"""
-    return FileResponse(get_file_path("index.html"))
+    return FileResponse(get_file_path("frontend/index.html"))
 
 @app.get("/write_prompt.html")
 async def serve_write_prompt():
     """Serve the write prompt page"""
-    return FileResponse(get_file_path("write_prompt.html"))
+    return FileResponse(get_file_path("frontend/write_prompt.html"))
 
 @app.get("/show_prompts.html")
 async def serve_show_prompts():
     """Serve the show prompts page"""
-    return FileResponse(get_file_path("show_prompts.html"))
+    return FileResponse(get_file_path("frontend/show_prompts.html"))
 
 @app.get("/index.html")
 async def serve_index_alt():
-    """Serve index.html via explicit path"""
-    return FileResponse(get_file_path("index.html"))
+    """Serve frontend/index.html via explicit path"""
+    return FileResponse(get_file_path("frontend/index.html"))
 
 
-app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
-
+app.mount("/frontend/static", StaticFiles(directory=os.path.join(BASE_DIR, "frontend/static")), name="static")
+app.mount("/frontend/scripts", StaticFiles(directory=os.path.join(BASE_DIR, "frontend/scripts")), name="scripts")
 
 # Run with: uvicorn main:app --reload
