@@ -16,7 +16,7 @@ No cloud dependencies. No subscriptions. Just your prompts, organized.
 
 ## 📸 Preview
 
-![PromptHub Screenshot](https://github.com/cyberytti/PromptHub/blob/main/Screenshot%20from%202026-03-23%2015-00-07.png)
+![PromptHub Screenshot](https://github.com/cyberytti/PromptHub/blob/main/assets/Screenshot%20from%202026-03-23%2015-00-07.png)
 
 > *The PromptHub interface: clean, focused, and ready to capture your best AI prompts.*
 
