@@ -13,6 +13,7 @@ app = FastAPI(title="PromptHub API")
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+os.makedirs("backend/database/", exist_ok=True)
 DB_PATH = os.path.join(BASE_DIR, 'backend/database/prompthub.db')
 
 conn = sqlite3.connect(DB_PATH, check_same_thread=False)
