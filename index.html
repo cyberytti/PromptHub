@@ -3,355 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PromptHub - AI Prompt Management Platform</title>
+    <title>PromptHub — AI Prompt Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #8b5cf6;
-            --accent: #06b6d4;
-            --bg-dark: #0f172a;
-            --bg-card: rgba(30, 41, 59, 0.7);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border: rgba(148, 163, 184, 0.1);
+            --bg: #0a0a0a;
+            --surface: #121212;
+            --surface-2: #1e1e1e;
+            --primary: #E8FF47;
+            --primary-dim: rgba(232,255,71,0.10);
+            --on-primary: #0a0a0a;
+            --text: #FAFAFA;
+            --text-dim: rgba(250,250,250,0.42);
+            --border: rgba(255,255,255,0.08);
+            --border-hover: rgba(232,255,71,0.35);
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-dark);
-            min-height: 100vh;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 55% 55% at 85% 15%, rgba(232,255,71,0.05) 0%, transparent 65%),
+                radial-gradient(ellipse 35% 35% at 5% 85%, rgba(232,255,71,0.025) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .shell {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            height: 100vh;
+            padding: 32px 52px;
+        }
+
+        /* ─── Top bar ─── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+        }
+
+        .brand-mark svg { width: 20px; height: 20px; }
+
+        .brand-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            letter-spacing: 0.06em;
+        }
+
+        .chip {
+            padding: 4px 12px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── Hero ─── */
+        .hero {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            color: var(--text-primary);
-            overflow-x: hidden;
-            position: relative;
         }
 
-        /* Animated Background Grid */
-        .bg-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        /* Floating Orbs */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: float 20s infinite ease-in-out;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .orb-1 {
-            width: 400px;
-            height: 400px;
-            background: var(--primary);
-            top: -200px;
-            left: -100px;
-            animation-delay: 0s;
-        }
-
-        .orb-2 {
-            width: 300px;
-            height: 300px;
-            background: var(--secondary);
-            bottom: -150px;
-            right: -50px;
-            animation-delay: -5s;
-        }
-
-        .orb-3 {
-            width: 250px;
-            height: 250px;
-            background: var(--accent);
-            top: 50%;
-            left: 50%;
-            animation-delay: -10s;
-            opacity: 0.2;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-
-        /* Main Container */
-        .container {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            max-width: 900px;
-            padding: 3rem;
-            animation: containerFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes containerFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(40px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Logo/Brand */
-        .brand {
+        .eyebrow {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 2rem;
-            animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .brand-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 10px 40px -10px var(--primary);
-            animation: iconPulse 3s ease-in-out infinite;
+        .eyebrow-bar {
+            width: 36px;
+            height: 2px;
+            background: var(--primary);
         }
 
-        @keyframes iconPulse {
-            0%, 100% { box-shadow: 0 10px 40px -10px var(--primary); }
-            50% { box-shadow: 0 20px 60px -10px var(--primary); }
+        .eyebrow-text {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--primary);
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Typography */
         h1 {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            letter-spacing: -0.02em;
-            line-height: 1.1;
-            animation: titleReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
-            background: linear-gradient(135deg, #fff 0%, #e2e8f0 50%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(80px, 12vw, 156px);
+            line-height: 0.91;
+            letter-spacing: 0.01em;
+            color: var(--text);
+            margin-bottom: 28px;
+            animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
-        @keyframes titleReveal {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-                filter: blur(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-                filter: blur(0);
-            }
+        h1 .accent { color: var(--primary); display: block; }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .subtitle {
-            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-            font-weight: 400;
-            line-height: 1.6;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            animation: fadeIn 1s ease 0.5s both;
+        .tagline {
+            font-size: clamp(14px, 1.4vw, 17px);
+            font-weight: 300;
+            color: var(--text-dim);
+            max-width: 380px;
+            line-height: 1.7;
+            margin-bottom: 44px;
+            animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Buttons */
         .actions {
             display: flex;
-            gap: 1rem;
-            justify-content: center;
+            gap: 14px;
             flex-wrap: wrap;
-            animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+            animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .button {
-            position: relative;
+        .btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 2.5rem;
-            font-size: 1rem;
-            font-weight: 600;
+            gap: 10px;
+            padding: 15px 30px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
             text-decoration: none;
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden;
-            border: none;
+            border-radius: 4px;
             cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
         }
 
-        .button-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.5);
+        .btn-primary {
+            background: var(--primary);
+            color: var(--on-primary);
+            border: none;
         }
 
-        .button-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
+        .btn-primary:hover {
+            background: #f0ff6a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(232,255,71,0.22);
         }
 
-        .button-primary:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 20px 60px -10px rgba(99, 102, 241, 0.6);
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1.5px solid var(--border);
         }
 
-        .button-primary:hover::before {
-            left: 100%;
-        }
-
-        .button-primary:active {
-            transform: translateY(0) scale(0.98);
-        }
-
-        .button-secondary {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-        }
-
-        .button-secondary:hover {
-            background: rgba(30, 41, 59, 0.9);
-            border-color: var(--primary);
+        .btn-outline:hover {
+            border-color: var(--border-hover);
+            background: var(--primary-dim);
+            color: var(--primary);
             transform: translateY(-2px);
         }
 
-        .button-icon {
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.18s ease;
         }
 
-        .button:hover .button-icon {
-            transform: translateX(4px);
+        .btn:hover svg { transform: translateX(4px); }
+
+        /* ─── Stats row ─── */
+        .stats {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
         }
 
-        /* Loading State Simulation */
-        .loading-bar {
+        .stat {
+            padding-right: 32px;
+            margin-right: 32px;
+            border-right: 1px solid var(--border);
+        }
+
+        .stat:last-child { border-right: none; }
+
+        .stat-val {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 30px;
+            letter-spacing: 0.04em;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* ─── Deco cards ─── */
+        .side-deco {
             position: fixed;
+            right: 0;
             top: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-            animation: loading 2s ease-in-out;
-            z-index: 100;
+            bottom: 0;
+            width: 380px;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
         }
 
-        @keyframes loading {
-            0% { width: 0; }
-            50% { width: 70%; }
-            100% { width: 100%; opacity: 0; }
+        .deco-card {
+            position: absolute;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.7);
         }
 
-        /* Responsive */
-        @media (max-width: 640px) {
-            .container { padding: 2rem 1.5rem; }
-            .actions { flex-direction: column; width: 100%; }
-            .button { width: 100%; justify-content: center; }
+        .deco-card-1 { width: 255px; top: 16%; right: 64px; animation: float 6s ease-in-out infinite; }
+        .deco-card-2 { width: 215px; top: 41%; right: 18px; animation: float 6s ease-in-out 2.2s infinite; }
+        .deco-card-3 { width: 240px; top: 63%; right: 76px; animation: float 6s ease-in-out 4.1s infinite; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-9px); }
         }
 
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            * { animation-duration: 0.01ms !important; }
+        .dc-head {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 10px;
         }
+
+        .dc-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .dc-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .dc-body {
+            font-size: 11px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .dc-tag {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .tag-sys { background: var(--primary-dim); border: 1px solid rgba(232,255,71,0.2); color: var(--primary); }
+        .tag-user { background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); color: #60a5fa; }
+        .tag-fav { background: rgba(192,132,252,0.1); border: 1px solid rgba(192,132,252,0.2); color: #c084fc; }
+
+        @media (max-width: 920px) { .side-deco { display: none; } }
+        @media (max-width: 540px) {
+            .shell { padding: 24px; overflow-y: auto; }
+            h1 { font-size: 68px; }
+            .actions { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+        }
+        @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     </style>
 </head>
 <body>
-    <div class="loading-bar"></div>
-    <div class="bg-grid"></div>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
 
-    <main class="container">
-        <div class="brand">
-            <div class="brand-icon">⚡</div>
+    <div class="side-deco">
+        <div class="deco-card deco-card-1">
+            <div class="dc-head"><div class="dc-dot"></div><span class="dc-title">Customer Support Bot</span></div>
+            <div class="dc-body">You are a helpful support agent. Always be concise, empathetic, and solution-focused...</div>
+            <span class="dc-tag tag-sys">System</span>
         </div>
-        
-        <h1>PromptHub</h1>
-        <p class="subtitle">The best way to manage your AI prompts.</p>
+        <div class="deco-card deco-card-2">
+            <div class="dc-head"><div class="dc-dot" style="background:#60a5fa;"></div><span class="dc-title">Code Reviewer</span></div>
+            <div class="dc-body">Review the following code for bugs, performance issues, and style...</div>
+            <span class="dc-tag tag-user">User</span>
+        </div>
+        <div class="deco-card deco-card-3">
+            <div class="dc-head"><div class="dc-dot" style="background:#c084fc;"></div><span class="dc-title">Blog Writer</span></div>
+            <div class="dc-body">Write a compelling blog post about {topic}. Use a conversational tone...</div>
+            <span class="dc-tag tag-fav">⭐ Favorite</span>
+        </div>
+    </div>
 
-        <ul class="actions">
-            <li>
-                <a href="write_prompt.html" class="button button-primary">
-                    <span>Write Prompt</span>
-                    <span class="button-icon">→</span>
+    <div class="shell">
+        <div class="topbar">
+            <div class="brand">
+                <div class="brand-mark">
+                    <svg viewBox="0 0 20 20" fill="none">
+                        <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#0a0a0a"/>
+                        <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#0a0a0a" opacity="0.6"/>
+                        <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#0a0a0a" opacity="0.55"/>
+                        <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#0a0a0a" opacity="0.3"/>
+                    </svg>
+                </div>
+                <span class="brand-name">PromptHub</span>
+            </div>
+            <span class="chip">v2.0</span>
+        </div>
+
+        <div class="hero">
+            <div class="eyebrow">
+                <div class="eyebrow-bar"></div>
+                <span class="eyebrow-text">AI Prompt Management</span>
+            </div>
+            <h1>Manage<span class="accent">Prompts.</span></h1>
+            <p class="tagline">The fastest way to write, organize, and reuse your AI prompts. Built for engineers who think clearly.</p>
+            <div class="actions">
+                <a href="write_prompt.html" class="btn btn-primary">
+                    Write Prompt
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="2" y1="8" x2="14" y2="8"/><polyline points="8 2 14 8 8 14"/>
+                    </svg>
                 </a>
-            </li>
-            <li>
-                <a href="show_prompts.html" class="button button-secondary">
-                    <span>Show Prompts</span>
-                    <span class="button-icon">→</span>
+                <a href="show_prompts.html" class="btn btn-outline">
+                    Show Prompts
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="2" y1="8" x2="14" y2="8"/><polyline points="8 2 14 8 8 14"/>
+                    </svg>
                 </a>
-            </li>
-        </ul>
-    </main>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat"><div class="stat-val">10×</div><div class="stat-lbl">Faster reuse</div></div>
+            <div class="stat"><div class="stat-val">∞</div><div class="stat-lbl">Prompts stored</div></div>
+            <div class="stat"><div class="stat-val">2</div><div class="stat-lbl">Prompt types</div></div>
+        </div>
+    </div>
+
 </body>
 </html>

@@ -3,464 +3,718 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Manager</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
+    <title>PromptHub — Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0f172a;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-            background-attachment: fixed;
-            color: #e2e8f0;
-            height: 100vh;
+        :root {
+            --bg: #0a0a0a;
+            --surface: #121212;
+            --surface-2: #1a1a1a;
+            --surface-3: #222222;
+            --surface-hover: #282828;
+            --primary: #E8FF47;
+            --primary-dim: rgba(232,255,71,0.10);
+            --on-primary: #0a0a0a;
+            --blue: #60a5fa;
+            --purple: #c084fc;
+            --red: #f87171;
+            --amber: #fbbf24;
+            --green: #4ade80;
+            --text: #FAFAFA;
+            --text-2: rgba(250,250,250,0.6);
+            --text-3: rgba(250,250,250,0.35);
+            --border: rgba(255,255,255,0.07);
+            --border-active: rgba(232,255,71,0.3);
+            --shadow: 0 4px 24px rgba(0,0,0,0.7);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
             overflow: hidden;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05); 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2); 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3); 
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* ─── Layout ─── */
+        .app {
+            display: flex;
+            height: 100vh;
         }
 
-        /* Glassmorphism Utilities */
-        .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* ─── Sidebar ─── */
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
+        .sidebar-header {
+            padding: 24px 24px 20px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .glass-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
         }
 
-        /* Modal Animation */
-        .modal-enter {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-        .modal-enter-active {
-            opacity: 1;
-            transform: scale(1);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .modal-exit {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .modal-exit-active {
-            opacity: 0;
-            transform: scale(0.95);
-            transition: opacity 0.2s ease, transform 0.2s ease;
+        .brand-mark {
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            border-radius: 5px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
         }
 
-        /* Badge Styles */
-        .badge-fav {
-            background: rgba(234, 179, 8, 0.15);
-            color: #eab308;
-            border: 1px solid rgba(234, 179, 8, 0.3);
+        .brand-mark svg { width: 16px; height: 16px; }
+
+        .sidebar-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            letter-spacing: 0.06em;
         }
-        .badge-nfav {
-            background: rgba(148, 163, 184, 0.15);
-            color: #94a3b8;
-            border: 1px solid rgba(148, 163, 184, 0.3);
+
+        .sidebar-sub {
+            font-size: 11px;
+            color: var(--text-3);
+            font-weight: 400;
+            letter-spacing: 0.02em;
         }
-        .badge-user {
-            background: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.3);
+
+        .sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
         }
-        .badge-sys {
-            background: rgba(168, 85, 247, 0.15);
-            color: #c084fc;
-            border: 1px solid rgba(168, 85, 247, 0.3);
+
+        .filter-group {
+            margin-bottom: 24px;
         }
-        /* Base button reset & core styles */
-.button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border-radius: 12px;
-    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
-    border: 1px solid transparent;
-    background: transparent;
-    color: #334155;
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
-}
 
-/* Secondary button specific styling */
-.button-secondary {
-    border-color: #e2e8f0;
-    background: rgba(255, 255, 255, 0.7);
-    box-shadow: 
-        0 1px 2px rgba(0, 0, 0, 0.03),
-        0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-/* Hover state - subtle lift & depth */
-.button-secondary:hover {
-    background: rgba(248, 250, 252, 0.92);
-    border-color: #cbd5e1;
-    color: #1e293b;
-    transform: translateY(-1px);
-    box-shadow: 
-        0 4px 8px rgba(0, 0, 0, 0.06),
-        0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-/* Active state - pressed effect */
-.button-secondary:active {
-    transform: translateY(1px);
-    box-shadow: 
-        0 1px 3px rgba(0, 0, 0, 0.08),
-        inset 0 1px 2px rgba(0, 0, 0, 0.05);
-    background: rgba(241, 245, 249, 0.95);
-}
-
-/* Focus state - accessible outline */
-.button-secondary:focus-visible {
-    outline: none;
-    box-shadow: 
-        0 0 0 3px rgba(59, 130, 246, 0.25),
-        0 4px 8px rgba(0, 0, 0, 0.08);
-    border-color: #3b82f6;
-}
-
-/* Icon animation */
-.button-secondary svg {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    stroke-width: 1.75;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    z-index: 1;
-}
-
-.button-secondary:hover svg {
-    transform: translateX(-2px);
-}
-
-/* Subtle background accent on hover */
-.button-secondary::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg, transparent 0%, rgba(59, 130, 246, 0.08) 30%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 0;
-    border-radius: inherit;
-}
-
-.button-secondary:hover::after {
-    opacity: 1;
-}
-
-/* Ensure text/icon stay above effects */
-.button-secondary span,
-.button-secondary svg {
-    position: relative;
-    z-index: 1;
-}
-
-/* Reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-    .button {
-        transition: none;
-    }
-    .button-secondary svg {
-        transition: none;
-    }
-    .button-secondary::after {
-        transition: none;
-    }
-}
-
-/* Dark mode support (automatic) */
-@media (prefers-color-scheme: dark) {
-    .button-secondary {
-        background: rgba(30, 41, 59, 0.6);
-        border-color: #334155;
-        color: #cbd5e1;
-        box-shadow: 
-            0 1px 2px rgba(0, 0, 0, 0.2),
-            0 2px 4px rgba(0, 0, 0, 0.15);
-    }
-
-    .button-secondary:hover {
-        background: rgba(56, 70, 89, 0.8);
-        border-color: #475569;
-        color: #f1f5f9;
-        box-shadow: 
-            0 4px 8px rgba(0, 0, 0, 0.25),
-            0 1px 2px rgba(0, 0, 0, 0.15);
-    }
-
-    .button-secondary:active {
-        background: rgba(30, 41, 59, 0.85);
-        box-shadow: 
-            0 1px 3px rgba(0, 0, 0, 0.3),
-            inset 0 1px 2px rgba(0, 0, 0, 0.2);
-    }
-
-    .button-secondary:focus-visible {
-        box-shadow: 
-            0 0 0 3px rgba(96, 165, 250, 0.3),
-            0 4px 8px rgba(0, 0, 0, 0.25);
-        border-color: #60a5fa;
-    }
-
-    .button-secondary::after {
-        background: linear-gradient(120deg, transparent 0%, rgba(96, 165, 250, 0.12) 30%, transparent 60%);
-    }
-}
-
-        /* Edit textarea styling */
-        .edit-textarea {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            color: #e2e8f0;
-            font-family: 'Inter', sans-serif;
-            resize: vertical;
-            min-height: 200px;
+        .filter-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 10px;
+            display: block;
         }
-        .edit-textarea:focus {
+
+        select {
+            width: 100%;
+            background: var(--surface-3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 10px 36px 10px 12px;
+            appearance: none;
+            cursor: pointer;
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            transition: border-color 0.15s, background 0.15s;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='rgba(250,250,250,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
         }
-    </style>
 
+        select:focus { border-color: var(--primary); background-color: var(--surface-hover); }
+        select option { background: #1a1a1a; }
+
+        .stats-widget {
+            margin-top: 8px;
+            padding: 16px;
+            background: var(--surface-3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .stats-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .stats-label { font-size: 12px; color: var(--text-2); }
+
+        .stats-val {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            color: var(--primary);
+            letter-spacing: 0.04em;
+        }
+
+        .stats-bar {
+            height: 3px;
+            background: var(--surface);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .stats-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 2px;
+            width: 100%;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 16px;
+            background: var(--surface-3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-2);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+
+        .btn-back:hover {
+            background: var(--surface-hover);
+            border-color: rgba(255,255,255,0.15);
+            color: var(--text);
+        }
+
+        /* ─── Main ─── */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ─── Header ─── */
+        .main-header {
+            height: 64px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            flex-shrink: 0;
+            background: var(--surface);
+        }
+
+        .header-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 26px;
+            letter-spacing: 0.06em;
+            color: var(--text);
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-3);
+            font-size: 13px;
+        }
+
+        .search-input {
+            background: var(--surface-3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            padding: 9px 16px 9px 36px;
+            width: 240px;
+            outline: none;
+            transition: border-color 0.15s, width 0.2s ease;
+        }
+
+        .search-input::placeholder { color: var(--text-3); }
+        .search-input:focus { border-color: var(--primary); width: 280px; }
+
+        /* ─── List ─── */
+        .list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px;
+        }
+
+        .prompt-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.15s, border-color 0.2s, transform 0.15s;
+        }
+
+        .prompt-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+            transform: scaleY(0);
+            transform-origin: center;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .prompt-card:hover {
+            background: var(--surface-2);
+            border-color: rgba(255,255,255,0.12);
+            transform: translateX(3px);
+        }
+
+        .prompt-card:hover::before { transform: scaleY(1); }
+
+        .card-inner {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .card-left {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            background: var(--surface-3);
+            border: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+
+        .card-text { flex: 1; min-width: 0; }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.15s;
+        }
+
+        .prompt-card:hover .card-title { color: var(--primary); }
+
+        .card-preview {
+            font-size: 12px;
+            color: var(--text-3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-badges {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+        }
+
+        .badge-fav { background: rgba(251,191,36,0.1); color: var(--amber); border-color: rgba(251,191,36,0.2); }
+        .badge-nfav { background: rgba(255,255,255,0.05); color: var(--text-3); border-color: var(--border); }
+        .badge-user { background: rgba(96,165,250,0.1); color: var(--blue); border-color: rgba(96,165,250,0.2); }
+        .badge-sys { background: rgba(192,132,252,0.1); color: var(--purple); border-color: rgba(192,132,252,0.2); }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 280px;
+            color: var(--text-3);
+            gap: 12px;
+        }
+
+        .empty-state i { font-size: 36px; opacity: 0.3; }
+        .empty-state p { font-size: 13px; }
+
+        /* ─── Modal overlay ─── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0,0,0,0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.hidden { display: none; }
+        .modal-overlay.opacity-0 { opacity: 0; pointer-events: none; }
+
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 640px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.8);
+            transform: scale(1);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-box.scale-95 { transform: scale(0.95); }
+        .modal-box.scale-100 { transform: scale(1); }
+
+        .modal-header {
+            padding: 22px 24px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .modal-title-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            letter-spacing: 0.03em;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .modal-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            flex-shrink: 0;
+        }
+
+        .btn-icon:hover { background: var(--surface-3); color: var(--text); }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px 24px;
+        }
+
+        .prompt-display {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .prompt-display p {
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            color: var(--text-2);
+            line-height: 1.75;
+            white-space: pre-wrap;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface-2);
+            border-radius: 0 0 12px 12px;
+        }
+
+        .btn-md {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 18px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .btn-danger { background: rgba(248,113,113,0.1); color: var(--red); border-color: rgba(248,113,113,0.2); }
+        .btn-danger:hover { background: rgba(248,113,113,0.2); }
+
+        .btn-ghost { background: transparent; color: var(--text-2); border-color: var(--border); }
+        .btn-ghost:hover { background: var(--surface-3); color: var(--text); }
+
+        .btn-amber { background: rgba(251,191,36,0.12); color: var(--amber); border-color: rgba(251,191,36,0.2); }
+        .btn-amber:hover { background: rgba(251,191,36,0.22); }
+
+        .btn-blue { background: rgba(96,165,250,0.12); color: var(--blue); border-color: rgba(96,165,250,0.2); }
+        .btn-blue:hover { background: rgba(96,165,250,0.22); }
+
+        .btn-green { background: rgba(74,222,128,0.12); color: var(--green); border-color: rgba(74,222,128,0.2); }
+        .btn-green:hover { background: rgba(74,222,128,0.22); }
+
+        .footer-right { display: flex; gap: 8px; align-items: center; }
+
+        /* Edit textarea */
+        .edit-textarea {
+            width: 100%;
+            min-height: 200px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            padding: 16px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .edit-textarea:focus { border-color: var(--primary); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: var(--surface);
+            border: 1px solid var(--green);
+            border-left: 3px solid var(--green);
+            color: var(--text);
+            padding: 12px 18px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.6);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.25s ease;
+            z-index: 500;
+            pointer-events: none;
+        }
+
+        .toast.visible { opacity: 1; transform: translateY(0); }
+        .toast.error { border-color: var(--red); }
+        .toast.error i { color: var(--red); }
+        .toast i { color: var(--green); }
+
+        /* date text in modal */
+        .modal-date { font-size: 11px; color: var(--text-3); }
+    </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body>
+
+<div class="app">
 
     <!-- Sidebar -->
-    <aside class="w-72 glass flex flex-col border-r border-white/10 z-20 shadow-2xl">
-        <div class="p-6 border-b border-white/10">
-            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                <i class="fa-solid fa-layer-group mr-2 text-blue-400"></i>Prompts
-            </h1>
-            <p class="text-xs text-slate-400 mt-1">Manage your AI interactions</p>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <div class="brand-mark">
+                    <svg viewBox="0 0 16 16" fill="none">
+                        <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" fill="#0a0a0a"/>
+                        <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" fill="#0a0a0a" opacity="0.6"/>
+                        <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" fill="#0a0a0a" opacity="0.55"/>
+                        <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" fill="#0a0a0a" opacity="0.3"/>
+                    </svg>
+                </div>
+                <span class="sidebar-title">PromptHub</span>
+            </div>
+            <div class="sidebar-sub">Manage your AI interactions</div>
         </div>
 
-        <div class="p-6 flex-1 overflow-y-auto">
-            <!-- Filter 1: Tag -->
-            <div class="mb-8">
-                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                    Filter by Tag
-                </label>
-                <div class="relative">
-                    <select id="filterTag" class="w-full bg-slate-800/50 text-white border border-slate-600 rounded-lg px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer hover:bg-slate-800">
-                        <option value="all">All Tags</option>
-                        <option value="Favorite">Favorite</option>
-                        <option value="Not favorite">Not Favorite</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                    </div>
-                </div>
+        <div class="sidebar-body">
+            <div class="filter-group">
+                <span class="filter-label">Filter by Tag</span>
+                <select id="filterTag">
+                    <option value="all">All Tags</option>
+                    <option value="Favorite">Favorite</option>
+                    <option value="Not favorite">Not Favorite</option>
+                </select>
             </div>
 
-            <!-- Filter 2: Category -->
-            <div class="mb-8">
-                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                    Filter by Category
-                </label>
-                <div class="relative">
-                    <select id="filterCategory" class="w-full bg-slate-800/50 text-white border border-slate-600 rounded-lg px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer hover:bg-slate-800">
-                        <option value="all">All Categories</option>
-                        <option value="User prompt">User Prompt</option>
-                        <option value="System prompt">System Prompt</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                    </div>
-                </div>
+            <div class="filter-group">
+                <span class="filter-label">Filter by Category</span>
+                <select id="filterCategory">
+                    <option value="all">All Categories</option>
+                    <option value="User prompt">User Prompt</option>
+                    <option value="System prompt">System Prompt</option>
+                </select>
             </div>
 
-            <!-- Stats Widget -->
-            <div class="mt-auto bg-slate-800/30 rounded-xl p-4 border border-white/5">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-slate-400 text-sm">Total Items</span>
-                    <span id="totalCount" class="text-white font-bold">0</span>
+            <div class="stats-widget">
+                <div class="stats-row">
+                    <span class="stats-label">Total Items</span>
+                    <span class="stats-val" id="totalCount">0</span>
                 </div>
-                <div class="w-full bg-slate-700/50 rounded-full h-1.5">
-                    <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full" style="width: 100%"></div>
-                </div>
+                <div class="stats-bar"><div class="stats-bar-fill"></div></div>
             </div>
         </div>
-        <a href="index.html" class="button button-secondary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-                <span>Back</span>
-        </a>
+
+        <div class="sidebar-footer">
+            <a href="index.html" class="btn-back">
+                <i class="fa-solid fa-arrow-left" style="font-size:12px;"></i>
+                Back to Home
+            </a>
+        </div>
     </aside>
 
-
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col relative z-10">
-        <!-- Header -->
-        <header class="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-slate-900/20 backdrop-blur-sm">
-            <h2 class="text-xl font-semibold text-white">Library</h2>
-            <div class="flex items-center gap-4">
-                <div class="relative">
-                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
-                    <input type="text" id="searchInput" placeholder="Search prompts..." class="bg-slate-800/50 border border-slate-700 text-sm rounded-full pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 text-slate-200 placeholder-slate-500">
-                </div>
-                <!-- "New" Button Removed as requested -->
+    <!-- Main -->
+    <main class="main">
+        <header class="main-header">
+            <span class="header-title">Library</span>
+            <div class="search-wrap">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search prompts...">
             </div>
         </header>
 
-        <!-- List Container -->
-        <div class="flex-1 overflow-y-auto p-8" id="listContainer">
-            <!-- Items will be injected here via JS -->
+        <div class="list-container" id="listContainer">
+            <!-- Cards injected by JS -->
         </div>
     </main>
+</div>
 
-    <!-- View Modal Overlay -->
-    <div id="modalOverlay" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0">
-        <!-- Modal Content -->
-        <div id="modalContent" class="glass w-full max-w-2xl rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 m-4 flex flex-col max-h-[85vh]">
-
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center p-6 border-b border-white/10">
-                <div>
-                    <h3 id="modalTitle" class="text-2xl font-bold text-white mb-1">Prompt Title</h3>
-                    <div class="flex gap-2 text-xs" id="modalBadges">
-                        <!-- Badges injected here -->
-                    </div>
-                </div>
-                <button id="closeModalBtn" class="text-slate-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+<!-- View Modal -->
+<div id="modalOverlay" class="modal-overlay hidden opacity-0">
+    <div id="modalContent" class="modal-box scale-95">
+        <div class="modal-header">
+            <div style="flex:1;min-width:0;">
+                <div class="modal-title-text" id="modalTitle">Prompt Title</div>
+                <div class="modal-badges" id="modalBadges"></div>
             </div>
-
-            <!-- Modal Body (View Mode) -->
-            <div id="viewModeBody" class="p-6 overflow-y-auto">
-                <div class="bg-slate-900/50 rounded-xl p-5 border border-white/5 relative group">
-                    <p id="modalBody" class="text-slate-300 leading-relaxed whitespace-pre-wrap font-mono text-sm"></p>
-                </div>
+            <button class="btn-icon" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" id="viewModeBody">
+            <div class="prompt-display">
+                <p id="modalBody"></p>
             </div>
-
-            <!-- Modal Footer (View Mode) -->
-            <div id="viewModeFooter" class="p-6 border-t border-white/10 flex justify-between items-center bg-slate-900/30 rounded-b-2xl">
-                <!-- Delete Button (Left Side) -->
-                <button id="deleteBtn" class="px-5 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
-                    <i class="fa-regular fa-trash-can"></i> Delete
-                </button>
-
-                <!-- Action Buttons (Right Side) -->
-                <div class="flex gap-3">
-                    <button id="closeModalBtnBottom" class="px-5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors font-medium text-sm">
-                        Close
-                    </button>
-                    <button id="editBtn" class="px-5 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-600/20 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
-                        <i class="fa-regular fa-pen-to-square"></i> Edit
-                    </button>
-                    <button id="copyBtn" class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
-                        <i class="fa-regular fa-copy"></i> Copy Text
-                    </button>
-                </div>
+        </div>
+        <div class="modal-footer" id="viewModeFooter">
+            <button class="btn-md btn-danger" id="deleteBtn"><i class="fa-regular fa-trash-can"></i> Delete</button>
+            <div class="footer-right">
+                <button class="btn-md btn-ghost" id="closeModalBtnBottom">Close</button>
+                <button class="btn-md btn-amber" id="editBtn"><i class="fa-regular fa-pen-to-square"></i> Edit</button>
+                <button class="btn-md btn-blue" id="copyBtn"><i class="fa-regular fa-copy"></i> Copy</button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Edit Modal Overlay -->
-    <div id="editModalOverlay" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0">
-        <!-- Edit Modal Content -->
-        <div id="editModalContent" class="glass w-full max-w-2xl rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 m-4 flex flex-col max-h-[85vh]">
-
-            <!-- Edit Modal Header -->
-            <div class="flex justify-between items-center p-6 border-b border-white/10">
-                <div>
-                    <h3 class="text-2xl font-bold text-white mb-1">Edit Prompt</h3>
-                    <p class="text-slate-400 text-sm">Modify the prompt body below</p>
-                </div>
-                <button id="closeEditModalBtn" class="text-slate-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+<!-- Edit Modal -->
+<div id="editModalOverlay" class="modal-overlay hidden opacity-0">
+    <div id="editModalContent" class="modal-box scale-95">
+        <div class="modal-header">
+            <div>
+                <div class="modal-title-text">Edit Prompt</div>
+                <div style="font-size:12px;color:var(--text-3);">Modify the prompt body below</div>
             </div>
-
-            <!-- Edit Modal Body -->
-            <div class="p-6 overflow-y-auto">
-                <textarea id="editTextarea" class="edit-textarea w-full rounded-xl p-4 text-sm leading-relaxed" placeholder="Enter your prompt here..."></textarea>
-            </div>
-
-            <!-- Edit Modal Footer -->
-            <div class="p-6 border-t border-white/10 flex justify-between items-center bg-slate-900/30 rounded-b-2xl">
-                <button id="cancelEditBtn" class="px-5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors font-medium text-sm">
-                    Cancel
-                </button>
-                <button id="updateBtn" class="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition-all transform active:scale-95 font-medium text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-check"></i> Update
-                </button>
-            </div>
+            <button class="btn-icon" id="closeEditModalBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <textarea id="editTextarea" class="edit-textarea" placeholder="Enter your prompt here..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-md btn-ghost" id="cancelEditBtn">Cancel</button>
+            <button class="btn-md btn-green" id="updateBtn"><i class="fa-solid fa-check"></i> Update</button>
         </div>
     </div>
+</div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-8 right-8 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50">
-        <i class="fa-solid fa-check-circle"></i>
-        <span class="font-medium">Copied to clipboard!</span>
-    </div>
+<!-- Toast -->
+<div id="toast" class="toast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span>Done!</span>
+</div>
 
-    <script>
-       // Replace the entire <script> section in show_prompts.html with this:
+<script>
+    const API_URL = "/api";
 
-    const API_URL = "/api"; // Change for production
-
-    // State
     let data = [];
     let currentItemId = null;
     let currentItemBody = "";
 
-    // DOM Elements (keep existing ones)
     const listContainer = document.getElementById('listContainer');
     const filterTag = document.getElementById('filterTag');
     const filterCategory = document.getElementById('filterCategory');
     const searchInput = document.getElementById('searchInput');
     const totalCount = document.getElementById('totalCount');
 
-    // View Modal Elements
     const modalOverlay = document.getElementById('modalOverlay');
     const modalContent = document.getElementById('modalContent');
     const modalTitle = document.getElementById('modalTitle');
@@ -472,25 +726,21 @@
     const deleteBtn = document.getElementById('deleteBtn');
     const editBtn = document.getElementById('editBtn');
 
-    // Edit Modal Elements
     const editModalOverlay = document.getElementById('editModalOverlay');
     const editModalContent = document.getElementById('editModalContent');
     const editTextarea = document.getElementById('editTextarea');
     const closeEditModalBtn = document.getElementById('closeEditModalBtn');
     const cancelEditBtn = document.getElementById('cancelEditBtn');
     const updateBtn = document.getElementById('updateBtn');
-
     const toast = document.getElementById('toast');
 
-    // ============ API FUNCTIONS ============
+    // ── API ──
 
     async function fetchPrompts() {
         const params = new URLSearchParams();
-
         const tagValue = filterTag.value;
         const catValue = filterCategory.value;
         const searchValue = searchInput.value;
-
         if (tagValue && tagValue !== 'all') params.append('tag', tagValue);
         if (catValue && catValue !== 'all') params.append('category', catValue);
         if (searchValue) params.append('search', searchValue);
@@ -507,16 +757,12 @@
 
     async function deletePromptAPI(id) {
         try {
-            const response = await fetch(`${API_URL}/prompts/${id}`, {
-                method: 'DELETE'
-            });
-
+            const response = await fetch(`${API_URL}/prompts/${id}`, { method: 'DELETE' });
             if (response.ok) {
-                showToast('Prompt deleted successfully');
-                fetchPrompts(); // Refresh list
+                showToast('Prompt deleted');
+                fetchPrompts();
             }
         } catch (error) {
-            console.error('Error deleting prompt:', error);
             showErrorToast('Failed to delete prompt');
         }
     }
@@ -525,44 +771,32 @@
         try {
             const response = await fetch(`${API_URL}/prompts/${id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ body: body })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ body })
             });
-
             if (response.ok) {
-                const result = await response.json();
-                showToast('Update request sent successfully');
+                showToast('Prompt updated');
                 closeEditModal();
                 closeViewModal();
-                fetchPrompts(); // Refresh list
+                fetchPrompts();
             } else {
                 showErrorToast('Failed to update prompt');
             }
         } catch (error) {
-            console.error('Error updating prompt:', error);
             showErrorToast('Failed to update prompt');
         }
     }
 
-    // ============ UI FUNCTIONS ============
+    // ── UI ──
 
     function truncateText(text, wordCount = 9) {
         const words = text.split(' ');
-        if (words.length > wordCount) {
-            return words.slice(0, wordCount).join(' ') + '...';
-        }
-        return text;
+        return words.length > wordCount ? words.slice(0, wordCount).join(' ') + '...' : text;
     }
 
     function getBadgeClass(type, value) {
-        if (type === 'favorite') {
-            return value === 'Favorite' ? 'badge-fav' : 'badge-nfav';
-        }
-        if (type === 'type') {
-            return value === 'User prompt' ? 'badge-user' : 'badge-sys';
-        }
+        if (type === 'favorite') return value === 'Favorite' ? 'badge-fav' : 'badge-nfav';
+        if (type === 'type') return value === 'User prompt' ? 'badge-user' : 'badge-sys';
         return '';
     }
 
@@ -572,43 +806,41 @@
 
         if (data.length === 0) {
             listContainer.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-64 text-slate-500">
-                    <i class="fa-regular fa-folder-open text-4xl mb-4 opacity-50"></i>
+                <div class="empty-state">
+                    <i class="fa-regular fa-folder-open"></i>
                     <p>No prompts found matching your criteria.</p>
-                </div>
-            `;
+                </div>`;
             return;
         }
 
         data.forEach(item => {
             const card = document.createElement('div');
-            card.className = 'glass-card rounded-xl p-5 mb-4 cursor-pointer group relative overflow-hidden';
+            card.className = 'prompt-card';
             card.onclick = () => openModal(item);
 
-            const iconClass = item.type === 'User prompt' ? 'fa-user text-blue-400' : 'fa-robot text-purple-400';
+            const iconClass = item.type === 'User prompt'
+                ? 'fa-user' : 'fa-robot';
+            const iconColor = item.type === 'User prompt'
+                ? 'color:var(--blue)' : 'color:var(--purple)';
 
             card.innerHTML = `
-                <div class="flex items-start justify-between">
-                    <div class="flex gap-4">
-                        <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center border border-white/5 shadow-inner">
-                            <i class="fa-solid ${iconClass}"></i>
+                <div class="card-inner">
+                    <div class="card-left">
+                        <div class="card-icon">
+                            <i class="fa-solid ${iconClass}" style="${iconColor};font-size:14px;"></i>
                         </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors">${item.title}</h3>
-                            <p class="text-slate-400 text-sm mt-1 line-clamp-1">${truncateText(item.body)}</p>
+                        <div class="card-text">
+                            <div class="card-title">${item.title}</div>
+                            <div class="card-preview">${truncateText(item.body)}</div>
                         </div>
                     </div>
-                    <div class="flex flex-col items-end gap-2">
-                        <span class="text-xs px-2 py-1 rounded-full ${getBadgeClass('favorite', item.favorite)}">
-                            ${item.favorite === 'Favorite' ? '<i class="fa-solid fa-star mr-1"></i>' : ''}${item.favorite}
+                    <div class="card-badges">
+                        <span class="badge ${getBadgeClass('favorite', item.favorite)}">
+                            ${item.favorite === 'Favorite' ? '★ ' : ''}${item.favorite}
                         </span>
-                        <span class="text-xs px-2 py-1 rounded-full ${getBadgeClass('type', item.type)}">
-                            ${item.type}
-                        </span>
+                        <span class="badge ${getBadgeClass('type', item.type)}">${item.type}</span>
                     </div>
-                </div>
-                <div class="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 w-0 group-hover:w-full transition-all duration-500"></div>
-            `;
+                </div>`;
             listContainer.appendChild(card);
         });
     }
@@ -620,16 +852,9 @@
         modalBody.innerText = item.body;
 
         modalBadges.innerHTML = `
-            <span class="px-2 py-0.5 rounded border ${getBadgeClass('favorite', item.favorite)}">
-                ${item.favorite}
-            </span>
-            <span class="px-2 py-0.5 rounded border ${getBadgeClass('type', item.type)}">
-                ${item.type}
-            </span>
-            <span class="text-slate-500 ml-2">
-                <i class="fa-regular fa-calendar mr-1"></i> ${item.date}
-            </span>
-        `;
+            <span class="badge ${getBadgeClass('favorite', item.favorite)}">${item.favorite}</span>
+            <span class="badge ${getBadgeClass('type', item.type)}">${item.type}</span>
+            <span class="modal-date"><i class="fa-regular fa-calendar" style="margin-right:4px;"></i>${item.date}</span>`;
 
         modalOverlay.classList.remove('hidden');
         setTimeout(() => {
@@ -643,12 +868,11 @@
         modalOverlay.classList.add('opacity-0');
         modalContent.classList.remove('scale-100');
         modalContent.classList.add('scale-95');
-
         setTimeout(() => {
             modalOverlay.classList.add('hidden');
             currentItemId = null;
             currentItemBody = "";
-        }, 300);
+        }, 250);
     }
 
     function openEditModal() {
@@ -666,107 +890,78 @@
         editModalOverlay.classList.add('opacity-0');
         editModalContent.classList.remove('scale-100');
         editModalContent.classList.add('scale-95');
-
-        setTimeout(() => {
-            editModalOverlay.classList.add('hidden');
-        }, 300);
-    }
-
-    function deleteItem() {
-        if (currentItemId !== null) {
-            deletePromptAPI(currentItemId);
-            closeViewModal();
-        }
+        setTimeout(() => { editModalOverlay.classList.add('hidden'); }, 250);
     }
 
     function copyToClipboard() {
-        const text = modalBody.innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            showToast('Copied to clipboard!');
-        });
+        navigator.clipboard.writeText(modalBody.innerText).then(() => showToast('Copied to clipboard!'));
     }
 
     function handleUpdate() {
         const updatedBody = editTextarea.value.trim();
-        if (updatedBody === '') {
-            showErrorToast('Prompt body cannot be empty');
-            return;
-        }
-        if (currentItemId !== null) {
-            updatePromptAPI(currentItemId, updatedBody);
-        }
+        if (!updatedBody) { showErrorToast('Prompt body cannot be empty'); return; }
+        if (currentItemId !== null) updatePromptAPI(currentItemId, updatedBody);
     }
 
-    function showToast(message = 'Copied to clipboard!') {
-        const toastText = toast.querySelector('span');
-        toastText.textContent = message;
-        toast.classList.remove('translate-y-20', 'opacity-0');
-        setTimeout(() => {
-            toast.classList.add('translate-y-20', 'opacity-0');
-        }, 3000);
+    let toastTimer;
+    function showToast(message = 'Done!') {
+        const span = toast.querySelector('span');
+        const icon = toast.querySelector('i');
+        span.textContent = message;
+        toast.classList.remove('error');
+        icon.className = 'fa-solid fa-circle-check';
+        icon.style.color = 'var(--green)';
+        toast.style.borderColor = 'var(--green)';
+        toast.classList.add('visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('visible'), 3000);
     }
 
     function showErrorToast(message) {
-        toast.classList.remove('bg-emerald-500');
-        toast.classList.add('bg-red-500');
-        showToast(message);
-        setTimeout(() => {
-            toast.classList.remove('bg-red-500');
-            toast.classList.add('bg-emerald-500');
-        }, 3000);
+        const span = toast.querySelector('span');
+        const icon = toast.querySelector('i');
+        span.textContent = message;
+        toast.classList.add('error');
+        icon.className = 'fa-solid fa-circle-xmark';
+        icon.style.color = 'var(--red)';
+        toast.style.borderColor = 'var(--red)';
+        toast.classList.add('visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('visible'), 3000);
     }
 
-    // ============ EVENT LISTENERS ============
-
+    // ── Events ──
     filterTag.addEventListener('change', fetchPrompts);
     filterCategory.addEventListener('change', fetchPrompts);
     searchInput.addEventListener('input', debounce(fetchPrompts, 300));
-
     closeModalBtn.addEventListener('click', closeViewModal);
     closeModalBtnBottom.addEventListener('click', closeViewModal);
     copyBtn.addEventListener('click', copyToClipboard);
-    deleteBtn.addEventListener('click', deleteItem);
+    deleteBtn.addEventListener('click', () => { if (currentItemId !== null) { deletePromptAPI(currentItemId); closeViewModal(); } });
     editBtn.addEventListener('click', openEditModal);
-
-    // Edit modal event listeners
     closeEditModalBtn.addEventListener('click', closeEditModal);
     cancelEditBtn.addEventListener('click', closeEditModal);
     updateBtn.addEventListener('click', handleUpdate);
 
-    modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeViewModal();
-    });
+    modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeViewModal(); });
+    editModalOverlay.addEventListener('click', e => { if (e.target === editModalOverlay) closeEditModal(); });
 
-    editModalOverlay.addEventListener('click', (e) => {
-        if (e.target === editModalOverlay) closeEditModal();
-    });
-
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
-            if (!editModalOverlay.classList.contains('hidden')) {
-                closeEditModal();
-            } else if (!modalOverlay.classList.contains('hidden')) {
-                closeViewModal();
-            }
+            if (!editModalOverlay.classList.contains('hidden')) closeEditModal();
+            else if (!modalOverlay.classList.contains('hidden')) closeViewModal();
         }
     });
 
-    // Debounce helper for search
     function debounce(func, wait) {
         let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
+        return function (...args) {
             clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+            timeout = setTimeout(() => func(...args), wait);
         };
     }
 
-    // Initial load
     fetchPrompts();
-
-    </script>
+</script>
 </body>
 </html>

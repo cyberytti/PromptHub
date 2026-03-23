@@ -3,78 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Editor</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>PromptHub — Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-app: #1e1e1e;
-            --bg-titlebar: #2b2b2b;
-            --bg-toolbar: #252526;
-            --bg-sidebar: #252526;
-            --bg-editor: #1e1e1e;
-            --bg-statusbar: #007acc;
-            --bg-panel: #252526;
-            --bg-input: #3c3c3c;
-            --bg-hover: #2a2d2e;
-            --bg-active: #094771;
-            --bg-modal: #252526;
-            --bg-modal-header: #2b2b2b;
-
-            --border: #333333;
-            --border-light: #3e3e42;
-            --border-focus: #007acc;
-
-            --text-primary: #cccccc;
-            --text-secondary: #8b8b8b;
-            --text-accent: #4ec9b0;
-            --text-muted: #6a6a6a;
-            --text-bright: #d4d4d4;
-            --text-white: #ffffff;
-
-            --accent: #007acc;
-            --accent-hover: #1a8ad4;
-            --accent-green: #4ec9b0;
-            --accent-yellow: #dcdcaa;
-            --accent-orange: #ce9178;
-            --accent-purple: #c586c0;
-            --danger: #f48771;
-
-            --font-ui: 'Geist', 'Segoe UI', system-ui, sans-serif;
-            --font-editor: 'IBM Plex Mono', 'Consolas', 'Menlo', monospace;
-
-            --titlebar-height: 38px;
-            --toolbar-height: 40px;
-            --statusbar-height: 22px;
-            --sidebar-width: 240px;
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --surface-2: #181818;
+            --surface-3: #202020;
+            --surface-4: #2a2a2a;
+            --primary: #E8FF47;
+            --primary-dim: rgba(232,255,71,0.1);
+            --on-primary: #0a0a0a;
+            --text: #FAFAFA;
+            --text-2: rgba(250,250,250,0.55);
+            --text-3: rgba(250,250,250,0.28);
+            --border: rgba(255,255,255,0.07);
+            --border-2: rgba(255,255,255,0.12);
+            --green: #4ade80;
+            --orange: #fb923c;
+            --blue: #60a5fa;
+            --red: #f87171;
+            --statusbar-bg: #131313;
+            --statusbar-h: 24px;
+            --titlebar-h: 40px;
+            --toolbar-h: 44px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: var(--bg-app);
-            color: var(--text-primary);
-            font-family: var(--font-ui);
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
             font-size: 13px;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Window Chrome ───────────────────────── */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+        /* ─── Title bar ─── */
         .titlebar {
-            height: var(--titlebar-height);
-            background: var(--bg-titlebar);
+            height: var(--titlebar-h);
+            background: var(--surface);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            padding: 0 12px;
-            -webkit-app-region: drag;
+            padding: 0 14px;
             user-select: none;
             position: relative;
             flex-shrink: 0;
@@ -83,8 +64,7 @@
         .traffic-lights {
             display: flex;
             gap: 7px;
-            -webkit-app-region: no-drag;
-            margin-right: 16px;
+            margin-right: 18px;
         }
 
         .tl {
@@ -93,146 +73,157 @@
             border-radius: 50%;
             cursor: pointer;
             transition: filter 0.15s;
-            position: relative;
         }
-        .tl:hover { filter: brightness(1.15); }
-        .tl-close  { background: #ff5f57; border: 0.5px solid rgba(0,0,0,0.18); }
+
+        .tl:hover { filter: brightness(1.2); }
+        .tl-close  { background: #ff5f57; border: 0.5px solid rgba(0,0,0,0.2); }
         .tl-min    { background: #febc2e; border: 0.5px solid rgba(0,0,0,0.12); }
         .tl-max    { background: #28c840; border: 0.5px solid rgba(0,0,0,0.12); }
 
-        .titlebar-title {
+        .titlebar-center {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             pointer-events: none;
         }
 
-        .titlebar-breadcrumb {
+        .brand-mark-sm {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 4px;
+            display: grid;
+            place-items: center;
+        }
+
+        .brand-mark-sm svg { width: 12px; height: 12px; }
+
+        .titlebar-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 15px;
+            letter-spacing: 0.07em;
+            color: var(--text-2);
+        }
+
+        .titlebar-right {
             margin-left: auto;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             font-size: 11px;
-            color: var(--text-muted);
-            -webkit-app-region: no-drag;
+            color: var(--text-3);
         }
 
         .breadcrumb-sep { opacity: 0.4; }
 
-        /* ── Toolbar ─────────────────────────────── */
+        /* ─── Toolbar ─── */
         .toolbar {
-            height: var(--toolbar-height);
-            background: var(--bg-toolbar);
+            height: var(--toolbar-h);
+            background: var(--surface-2);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            padding: 0 8px;
+            padding: 0 10px;
             gap: 2px;
             flex-shrink: 0;
         }
 
-        .toolbar-btn {
-            height: 28px;
-            padding: 0 10px;
+        .tb-btn {
+            height: 30px;
+            padding: 0 12px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            border: none;
+            gap: 7px;
             background: transparent;
-            color: var(--text-secondary);
-            font-family: var(--font-ui);
+            border: none;
+            color: var(--text-2);
+            font-family: 'DM Sans', sans-serif;
             font-size: 12px;
-            font-weight: 400;
-            border-radius: 4px;
+            font-weight: 500;
+            border-radius: 5px;
             cursor: pointer;
             transition: background 0.12s, color 0.12s;
+            text-decoration: none;
             white-space: nowrap;
-            -webkit-app-region: no-drag;
         }
 
-        .toolbar-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
+        .tb-btn:hover { background: var(--surface-3); color: var(--text); }
+        .tb-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-        .toolbar-btn:active {
-            background: rgba(255,255,255,0.07);
-        }
-
-        .toolbar-btn svg {
-            flex-shrink: 0;
-            opacity: 0.75;
-        }
-
-        .toolbar-btn:hover svg { opacity: 1; }
-
-        .toolbar-btn.primary {
-            background: var(--accent);
-            color: #fff;
-            font-weight: 500;
-        }
-
-        .toolbar-btn.primary:hover { background: var(--accent-hover); }
-        .toolbar-btn.primary svg { opacity: 1; }
-
-        .toolbar-sep {
+        .tb-sep {
             width: 1px;
-            height: 20px;
-            background: var(--border-light);
+            height: 18px;
+            background: var(--border);
             margin: 0 4px;
         }
 
-        .toolbar-spacer { flex: 1; }
+        .tb-spacer { flex: 1; }
 
-        .toolbar-label {
-            font-size: 11px;
-            color: var(--text-muted);
-            padding: 0 8px;
+        .tb-file-status {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 7px;
+            font-size: 11px;
+            color: var(--text-3);
+            padding: 0 6px;
         }
 
-        .file-dot {
+        .modified-dot {
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background: var(--accent-orange);
+            background: var(--orange);
+            display: none;
         }
 
-        /* ── Main Layout ─────────────────────────── */
+        .tb-btn-save {
+            background: var(--primary) !important;
+            color: var(--on-primary) !important;
+            font-weight: 700 !important;
+            border-radius: 5px;
+            gap: 8px;
+        }
+
+        .tb-btn-save:hover { background: #f0ff6a !important; }
+
+        .save-kbd {
+            background: rgba(0,0,0,0.18);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* ─── Workspace ─── */
         .workspace {
             display: flex;
             flex-direction: column;
-            height: calc(100vh - var(--titlebar-height) - var(--toolbar-height) - var(--statusbar-height));
+            height: calc(100vh - var(--titlebar-h) - var(--toolbar-h) - var(--statusbar-h));
             overflow: hidden;
         }
 
-        /* ── Tab Bar ─────────────────────────────── */
+        /* ─── Tab bar ─── */
         .tabbar {
-            height: 35px;
-            background: var(--bg-titlebar);
+            height: 36px;
+            background: var(--surface);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: flex-end;
-            padding: 0;
             flex-shrink: 0;
-            overflow: hidden;
         }
 
         .tab {
-            height: 35px;
+            height: 36px;
             padding: 0 28px 0 14px;
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 12px;
-            color: var(--text-secondary);
-            background: var(--bg-titlebar);
+            color: var(--text-2);
+            background: var(--surface);
             border-right: 1px solid var(--border);
             cursor: default;
             user-select: none;
@@ -240,17 +231,13 @@
         }
 
         .tab.active {
-            background: var(--bg-editor);
-            color: var(--text-bright);
-            border-bottom: 1px solid var(--bg-editor);
+            background: var(--bg);
+            color: var(--text);
+            border-bottom: 1px solid var(--bg);
             margin-bottom: -1px;
         }
 
-        .tab-icon {
-            width: 14px;
-            height: 14px;
-            opacity: 0.7;
-        }
+        .tab-icon { width: 14px; height: 14px; opacity: 0.7; }
 
         .tab-close {
             position: absolute;
@@ -264,33 +251,29 @@
             align-items: center;
             justify-content: center;
             opacity: 0;
-            cursor: pointer;
             transition: opacity 0.12s, background 0.12s;
         }
 
-        .tab:hover .tab-close, .tab.active .tab-close {
-            opacity: 0.6;
-        }
-
+        .tab:hover .tab-close,
+        .tab.active .tab-close { opacity: 0.5; }
         .tab-close:hover { background: rgba(255,255,255,0.1); opacity: 1 !important; }
 
-        /* ── Editor Area ─────────────────────────── */
+        /* ─── Editor ─── */
         .editor-container {
             flex: 1;
             display: flex;
             overflow: hidden;
-            position: relative;
+            background: var(--bg);
         }
 
         .line-numbers {
             width: 52px;
-            background: var(--bg-editor);
+            background: var(--bg);
             border-right: 1px solid var(--border);
             padding: 16px 8px 16px 0;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 0;
             overflow: hidden;
             flex-shrink: 0;
             pointer-events: none;
@@ -298,43 +281,27 @@
         }
 
         .ln {
-            font-family: var(--font-editor);
+            font-family: 'DM Mono', monospace;
             font-size: 13px;
             line-height: 21px;
-            color: var(--text-muted);
-            opacity: 0.5;
+            color: var(--text-3);
         }
-
-        .ln.active-line { opacity: 1; color: var(--text-secondary); }
 
         .editor-scroll {
             flex: 1;
             overflow: auto;
-            position: relative;
-            background: var(--bg-editor);
+            background: var(--bg);
         }
-
-        .editor-scroll::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-        .editor-scroll::-webkit-scrollbar-track { background: transparent; }
-        .editor-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.12);
-            border-radius: 5px;
-            border: 2px solid var(--bg-editor);
-        }
-        .editor-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
         #message {
             display: block;
             width: 100%;
             min-height: 100%;
             padding: 16px 20px 80px 16px;
-            font-family: var(--font-editor);
+            font-family: 'DM Mono', monospace;
             font-size: 13.5px;
             line-height: 21px;
-            color: var(--text-bright);
+            color: var(--text);
             background: transparent;
             border: none;
             outline: none;
@@ -342,60 +309,41 @@
             tab-size: 4;
             white-space: pre-wrap;
             word-wrap: break-word;
-            caret-color: #aeafad;
+            caret-color: var(--primary);
         }
 
-        #message::placeholder {
-            color: var(--text-muted);
-            font-style: italic;
-        }
-
-        #message::selection {
-            background: rgba(0, 122, 204, 0.3);
-        }
-
-        /* Active line highlight */
-        .active-line-highlight {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 21px;
-            background: rgba(255,255,255,0.03);
-            pointer-events: none;
-            display: none;
-        }
+        #message::placeholder { color: var(--text-3); font-style: italic; }
+        #message::selection { background: rgba(232,255,71,0.15); }
 
         /* Minimap */
         .minimap {
-            width: 50px;
-            background: var(--bg-editor);
+            width: 52px;
+            background: var(--bg);
             border-left: 1px solid var(--border);
             overflow: hidden;
             flex-shrink: 0;
-            opacity: 0.5;
+            opacity: 0.45;
         }
 
-        .minimap-content {
-            padding: 16px 4px;
-        }
+        .minimap-content { padding: 16px 4px; }
 
         .minimap-line {
             height: 2px;
             margin-bottom: 1px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.06);
             border-radius: 1px;
         }
 
-        .minimap-line.filled { background: rgba(255,255,255,0.18); }
+        .minimap-line.filled { background: rgba(232,255,71,0.2); }
 
-        /* ── Status Bar ──────────────────────────── */
+        /* ─── Status bar ─── */
         .statusbar {
-            height: var(--statusbar-height);
-            background: var(--bg-statusbar);
+            height: var(--statusbar-h);
+            background: var(--surface);
+            border-top: 1px solid var(--border);
             display: flex;
             align-items: center;
             padding: 0 10px;
-            gap: 0;
             flex-shrink: 0;
         }
 
@@ -406,205 +354,174 @@
             align-items: center;
             gap: 5px;
             font-size: 11px;
-            color: rgba(255,255,255,0.9);
+            color: var(--text-3);
             cursor: pointer;
-            transition: background 0.12s;
+            transition: background 0.12s, color 0.12s;
             white-space: nowrap;
         }
 
-        .status-item:hover { background: rgba(255,255,255,0.12); }
-        .status-item svg { opacity: 0.85; }
+        .status-item:hover { background: var(--surface-3); color: var(--text-2); }
         .status-spacer { flex: 1; }
 
-        /* ── Modal / Dialog ──────────────────────── */
+        /* ─── Dialog ─── */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.55);
+            background: rgba(0,0,0,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9000;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.15s;
+            transition: opacity 0.15s, visibility 0.15s;
         }
 
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
 
         .dialog {
             width: 400px;
-            background: var(--bg-modal);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+            background: var(--surface-2);
+            border: 1px solid var(--border-2);
+            border-radius: 10px;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.8);
             overflow: hidden;
-            transform: scale(0.97) translateY(-4px);
-            transition: transform 0.18s cubic-bezier(0.34,1.2,0.64,1);
-        }
-
-        .modal-overlay.active .dialog {
-            transform: scale(1) translateY(0);
         }
 
         .dialog-titlebar {
-            background: var(--bg-modal-header);
-            border-bottom: 1px solid var(--border);
-            padding: 11px 16px;
             display: flex;
             align-items: center;
             gap: 10px;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-3);
         }
 
-        .dialog-titlebar svg { color: var(--accent); flex-shrink: 0; }
+        .dialog-titlebar svg { color: var(--primary); flex-shrink: 0; }
 
         .dialog-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-bright);
-            letter-spacing: 0.01em;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 0.05em;
+            color: var(--text);
         }
 
         .dialog-subtitle {
-            font-size: 11px;
-            color: var(--text-muted);
             margin-left: auto;
+            font-size: 11px;
+            color: var(--text-3);
+            font-family: 'DM Mono', monospace;
         }
 
-        .dialog-body {
-            padding: 18px 16px 16px;
-        }
+        .dialog-body { padding: 18px; }
 
-        .field {
-            margin-bottom: 14px;
-        }
-
-        .field:last-of-type { margin-bottom: 0; }
+        .field { margin-bottom: 14px; }
+        .field:last-child { margin-bottom: 0; }
 
         .field-label {
             display: block;
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
-            letter-spacing: 0.04em;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 7px;
         }
 
         .field input,
         .field select {
             width: 100%;
-            height: 30px;
-            padding: 0 10px;
-            background: var(--bg-input);
-            border: 1px solid var(--border-light);
-            border-radius: 4px;
-            color: var(--text-bright);
-            font-family: var(--font-ui);
-            font-size: 12.5px;
-            transition: border-color 0.12s, box-shadow 0.12s;
+            background: var(--surface-4);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            padding: 9px 12px;
             outline: none;
+            transition: border-color 0.15s, background 0.15s;
+            appearance: none;
         }
 
         .field input:focus,
-        .field select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 1px var(--accent);
-        }
+        .field select:focus { border-color: var(--primary); background: var(--surface-3); }
 
-        .field input::placeholder { color: var(--text-muted); }
+        .field input::placeholder { color: var(--text-3); }
+        .field select option { background: #1e1e1e; }
 
-        .field select {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236a6a6a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-            background-size: 14px;
-            padding-right: 28px;
-        }
-
-        .field select option { background: var(--bg-input); }
-
-        .field-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
+        .field-row { display: flex; gap: 12px; }
+        .field-row .field { flex: 1; }
 
         .dialog-footer {
-            padding: 12px 16px;
-            background: rgba(0,0,0,0.15);
+            padding: 14px 18px;
             border-top: 1px solid var(--border);
+            background: var(--surface-3);
             display: flex;
-            gap: 8px;
+            align-items: center;
             justify-content: flex-end;
+            gap: 8px;
         }
 
-        .btn {
-            height: 28px;
-            padding: 0 16px;
-            border: none;
-            border-radius: 4px;
-            font-family: var(--font-ui);
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.12s, color 0.12s;
+        .btn-dialog {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 7px;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
         }
 
-        .btn-ghost {
-            background: rgba(255,255,255,0.06);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-light);
+        .btn-dialog-ghost {
+            background: transparent;
+            color: var(--text-2);
+            border-color: var(--border);
         }
-        .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
 
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
+        .btn-dialog-ghost:hover { background: var(--surface-4); color: var(--text); }
+
+        .btn-dialog-primary {
+            background: var(--primary);
+            color: var(--on-primary);
+            border-color: transparent;
         }
-        .btn-primary:hover { background: var(--accent-hover); }
 
-        /* ── Toast ───────────────────────────────── */
+        .btn-dialog-primary:hover { background: #f0ff6a; }
+
+        /* ─── Toast ─── */
         .toast {
             position: fixed;
-            bottom: calc(var(--statusbar-height) + 16px);
+            bottom: calc(var(--statusbar-h) + 16px);
             right: 20px;
-            background: #1f1f1f;
-            border: 1px solid var(--border-light);
-            border-left: 3px solid var(--accent-green);
-            color: var(--text-primary);
+            background: var(--surface-2);
+            border: 1px solid var(--border-2);
+            border-left: 3px solid var(--green);
+            color: var(--text);
             padding: 10px 16px;
-            border-radius: 4px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border-radius: 6px;
             display: flex;
             align-items: center;
             gap: 10px;
             font-size: 12px;
-            font-weight: 400;
+            font-weight: 500;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.6);
             opacity: 0;
-            transform: translateX(20px);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(16px);
+            transition: all 0.2s ease;
             z-index: 8000;
             pointer-events: none;
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateX(0);
-        }
+        .toast.show { opacity: 1; transform: translateX(0); }
 
         .toast-icon {
             width: 16px;
             height: 16px;
-            background: var(--accent-green);
+            background: var(--green);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -612,38 +529,37 @@
             flex-shrink: 0;
             font-size: 9px;
             color: #000;
-            font-weight: 700;
+            font-weight: 900;
         }
 
-        /* ── Saving state ────────────────────────── */
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .spin { animation: spin 0.8s linear infinite; }
 
-        /* ── Scrollbar in editor ─────────────────── */
-        ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 5px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     </style>
 </head>
 <body>
 
-    <!-- Title Bar -->
+    <!-- Title bar -->
     <div class="titlebar">
         <div class="traffic-lights">
             <div class="tl tl-close"></div>
             <div class="tl tl-min"></div>
             <div class="tl tl-max"></div>
         </div>
-        <div class="titlebar-title">Prompt Editor — untitled.prompt</div>
-        <div class="titlebar-breadcrumb">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
+        <div class="titlebar-center">
+            <div class="brand-mark-sm">
+                <svg viewBox="0 0 12 12" fill="none">
+                    <rect x="1" y="1" width="4" height="4" rx="1" fill="#0a0a0a"/>
+                    <rect x="7" y="1" width="4" height="4" rx="1" fill="#0a0a0a" opacity="0.6"/>
+                    <rect x="1" y="7" width="4" height="4" rx="1" fill="#0a0a0a" opacity="0.5"/>
+                    <rect x="7" y="7" width="4" height="4" rx="1" fill="#0a0a0a" opacity="0.3"/>
+                </svg>
+            </div>
+            <span class="titlebar-title">Prompt Editor</span>
+        </div>
+        <div class="titlebar-right">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Prompts
             <span class="breadcrumb-sep">›</span>
             untitled.prompt
@@ -652,55 +568,54 @@
 
     <!-- Toolbar -->
     <div class="toolbar">
-        <a href="index.html" class="toolbar-btn" style="text-decoration:none;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
+        <a href="index.html" class="tb-btn" style="text-decoration:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
             </svg>
             Back
         </a>
-        <div class="toolbar-sep"></div>
-        <button class="toolbar-btn" title="Undo (⌘Z)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="1 4 1 10 7 10"></polyline>
-                <path d="M3.51 15a9 9 0 1 0 .49-3.51"></path>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" title="Undo (⌘Z)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
             </svg>
         </button>
-        <button class="toolbar-btn" title="Redo (⌘⇧Z)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-.49-3.51"></path>
+        <button class="tb-btn" title="Redo (⌘⇧Z)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-3.51"/>
             </svg>
         </button>
-        <div class="toolbar-sep"></div>
-        <div class="toolbar-label">
-            <div class="file-dot" id="modifiedDot" style="display:none;"></div>
-            <span id="fileLabel" style="color:var(--text-muted);">No changes</span>
+        <div class="tb-sep"></div>
+        <div class="tb-file-status">
+            <div class="modified-dot" id="modifiedDot"></div>
+            <span id="fileLabel">No changes</span>
         </div>
-        <div class="toolbar-spacer"></div>
-        <button class="toolbar-btn" id="save_button" style="background:var(--accent);color:#fff;font-weight:500;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                <polyline points="7 3 7 8 15 8"></polyline>
+        <div class="tb-spacer"></div>
+        <button class="tb-btn tb-btn-save" id="save_button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
             </svg>
             Save Prompt
-            <kbd style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:3px;font-size:10px;font-family:var(--font-editor);">⌘S</kbd>
+            <span class="save-kbd">⌘S</span>
         </button>
     </div>
 
     <!-- Workspace -->
     <div class="workspace">
-        <!-- Tab Bar -->
+        <!-- Tab bar -->
         <div class="tabbar">
             <div class="tab active">
-                <svg class="tab-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="2" width="12" height="12" rx="2" stroke="#4ec9b0" stroke-width="1.2"/>
-                    <path d="M5 6h6M5 9h4" stroke="#4ec9b0" stroke-width="1.2" stroke-linecap="round"/>
+                <svg class="tab-icon" viewBox="0 0 16 16" fill="none">
+                    <rect x="2" y="2" width="12" height="12" rx="2" stroke="var(--primary)" stroke-width="1.2"/>
+                    <path d="M5 6h6M5 9h4" stroke="var(--primary)" stroke-width="1.2" stroke-linecap="round"/>
                 </svg>
                 untitled.prompt
                 <span class="tab-close">
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
                 </span>
             </div>
         </div>
@@ -708,7 +623,7 @@
         <!-- Editor -->
         <div class="editor-container">
             <div class="line-numbers" id="lineNumbers">
-                <div class="ln active-line">1</div>
+                <div class="ln">1</div>
             </div>
             <div class="editor-scroll">
                 <textarea
@@ -716,7 +631,7 @@
                     name="message"
                     placeholder="// Start writing your prompt here...
 //
-// Use Cmd+S to save, or click 'Save Prompt' in the toolbar."
+// Use ⌘S to save, or click 'Save Prompt' in the toolbar."
                     aria-label="Prompt editor"
                     spellcheck="false"
                     autocorrect="off"
@@ -729,10 +644,12 @@
         </div>
     </div>
 
-    <!-- Status Bar -->
+    <!-- Status bar -->
     <div class="statusbar">
         <div class="status-item">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
             Ready
         </div>
         <div class="status-item" id="positionStatus">Ln 1, Col 1</div>
@@ -742,19 +659,21 @@
         <div class="status-item">Plain Text</div>
         <div class="status-item">UTF-8</div>
         <div class="status-item">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
             Prompt Editor v1.0
         </div>
     </div>
 
-    <!-- Save Dialog -->
+    <!-- Save dialog -->
     <div class="modal-overlay" id="saveModal">
         <div class="dialog">
             <div class="dialog-titlebar">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
                 </svg>
                 <span class="dialog-title">Save Prompt</span>
                 <span class="dialog-subtitle">untitled.prompt</span>
@@ -783,12 +702,12 @@
                     </div>
                 </div>
                 <div class="dialog-footer">
-                    <button type="button" class="btn btn-ghost" id="cancelButton">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="button" class="btn-dialog btn-dialog-ghost" id="cancelButton">Cancel</button>
+                    <button type="submit" class="btn-dialog btn-dialog-primary">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                            <polyline points="7 3 7 8 15 8"></polyline>
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
                         </svg>
                         Save
                     </button>
@@ -824,18 +743,15 @@
         const fileLabel = document.getElementById('fileLabel');
         const minimapContent = document.getElementById('minimapContent');
 
-        // ── Line Numbers ───────────────────────────────────
         function updateLineNumbers() {
             const lines = textarea.value.split('\n');
-            const count = lines.length;
             let html = '';
-            for (let i = 1; i <= Math.max(count, 1); i++) {
+            for (let i = 1; i <= Math.max(lines.length, 1); i++) {
                 html += `<div class="ln">${i}</div>`;
             }
             lineNumbers.innerHTML = html;
         }
 
-        // ── Minimap ────────────────────────────────────────
         function updateMinimap() {
             const lines = textarea.value.split('\n');
             let html = '';
@@ -847,7 +763,6 @@
             minimapContent.innerHTML = html;
         }
 
-        // ── Stats ──────────────────────────────────────────
         function updateStats() {
             const val = textarea.value;
             const chars = val.length;
@@ -855,19 +770,17 @@
             charStatus.textContent = chars.toLocaleString() + ' chars';
             wordStatus.textContent = words.toLocaleString() + ' words';
 
-            // Modified state
             if (chars > 0) {
                 modifiedDot.style.display = 'block';
                 fileLabel.textContent = 'Unsaved changes';
-                fileLabel.style.color = 'var(--accent-orange)';
+                fileLabel.style.color = 'var(--orange)';
             } else {
                 modifiedDot.style.display = 'none';
                 fileLabel.textContent = 'No changes';
-                fileLabel.style.color = 'var(--text-muted)';
+                fileLabel.style.color = 'var(--text-3)';
             }
         }
 
-        // ── Cursor Position ────────────────────────────────
         function updatePosition() {
             const text = textarea.value;
             const pos = textarea.selectionStart;
@@ -878,18 +791,11 @@
             positionStatus.textContent = `Ln ${ln}, Col ${col}`;
         }
 
-        // ── Listeners ─────────────────────────────────────
-        textarea.addEventListener('input', () => {
-            updateLineNumbers();
-            updateStats();
-            updateMinimap();
-        });
-
+        textarea.addEventListener('input', () => { updateLineNumbers(); updateStats(); updateMinimap(); });
         textarea.addEventListener('keyup', updatePosition);
         textarea.addEventListener('click', updatePosition);
         textarea.addEventListener('mouseup', updatePosition);
 
-        // Tab key support
         textarea.addEventListener('keydown', function (e) {
             if (e.key === 'Tab') {
                 e.preventDefault();
@@ -897,24 +803,17 @@
                 const end = this.selectionEnd;
                 this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
                 this.selectionStart = this.selectionEnd = start + 4;
-                updateLineNumbers();
-                updateStats();
-                updateMinimap();
+                updateLineNumbers(); updateStats(); updateMinimap();
             }
-            // Cmd+S
             if ((e.metaKey || e.ctrlKey) && e.key === 's') {
                 e.preventDefault();
                 openModal();
             }
         });
 
-        // ── Modal ──────────────────────────────────────────
         function openModal() {
             const content = textarea.value.trim();
-            if (!content) {
-                shakeButton();
-                return;
-            }
+            if (!content) { shakeButton(); return; }
             saveModal.classList.add('active');
             setTimeout(() => promptNameInput.focus(), 100);
         }
@@ -924,24 +823,18 @@
             saveForm.reset();
         }
 
-        saveButton.addEventListener('click', openModal);
-        cancelButton.addEventListener('click', closeModal);
-        saveModal.addEventListener('click', (e) => { if (e.target === saveModal) closeModal(); });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // ── Shake animation ────────────────────────────────
         function shakeButton() {
-            saveButton.style.animation = 'none';
             saveButton.style.transform = 'translateX(-3px)';
             setTimeout(() => { saveButton.style.transform = 'translateX(3px)'; }, 60);
             setTimeout(() => { saveButton.style.transform = 'translateX(-2px)'; }, 120);
             setTimeout(() => { saveButton.style.transform = 'translateX(0)'; }, 180);
         }
 
-        // ── Form Submit ────────────────────────────────────
+        saveButton.addEventListener('click', openModal);
+        cancelButton.addEventListener('click', closeModal);
+        saveModal.addEventListener('click', e => { if (e.target === saveModal) closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
         saveForm.addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -954,9 +847,10 @@
 
             const originalHTML = saveButton.innerHTML;
             saveButton.innerHTML = `
-                <svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4" stroke-dashoffset="10"/></svg>
-                Saving...
-            `;
+                <svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" stroke-dasharray="31.4" stroke-dashoffset="10"/>
+                </svg>
+                Saving...`;
             saveButton.disabled = true;
 
             try {
@@ -970,28 +864,24 @@
                     closeModal();
                     textarea.value = '';
                     saveForm.reset();
-                    updateLineNumbers();
-                    updateStats();
-                    updateMinimap();
+                    updateLineNumbers(); updateStats(); updateMinimap();
 
-                    // Show toast
-                    toast.querySelector('span').textContent = `"${promptData.title}" saved successfully!`;
+                    toast.querySelector('span').textContent = `"${promptData.title}" saved!`;
                     toast.classList.add('show');
                     setTimeout(() => toast.classList.remove('show'), 3200);
 
-                    // Update file label
                     fileLabel.textContent = 'Saved';
-                    fileLabel.style.color = 'var(--accent-green)';
+                    fileLabel.style.color = 'var(--green)';
                     modifiedDot.style.display = 'none';
                     setTimeout(() => {
                         fileLabel.textContent = 'No changes';
-                        fileLabel.style.color = 'var(--text-muted)';
+                        fileLabel.style.color = 'var(--text-3)';
                     }, 3000);
                 } else {
                     throw new Error('Failed to save');
                 }
             } catch (error) {
-                console.error('Error saving prompt:', error);
+                console.error('Error saving:', error);
                 alert('Failed to save prompt. Please try again.');
             } finally {
                 saveButton.innerHTML = originalHTML;
@@ -999,10 +889,7 @@
             }
         });
 
-        // Init
-        updateLineNumbers();
-        updateStats();
-        updateMinimap();
+        updateLineNumbers(); updateStats(); updateMinimap();
     });
     </script>
 </body>

@@ -133,9 +133,9 @@ def delete_prompt(prompt_id: int):
 @app.put("/api/prompts/{prompt_id}")
 def update_prompt(prompt_id: int, prompt_update: PromptUpdate):
     """Update a prompt body by ID - prints values to console"""
-    print(f"UPDATE REQUEST RECEIVED:")
-    print(f"  Prompt ID: {prompt_id}")
-    print(f"  New Body: {prompt_update.body}")
+    # print(f"UPDATE REQUEST RECEIVED:")
+    # print(f"  Prompt ID: {prompt_id}")
+    # print(f"  New Body: {prompt_update.body}")
 
     cursor.execute("UPDATE PromptHub SET prompt_body = ? WHERE id = ?",(prompt_update.body, prompt_id))
     conn.commit()
